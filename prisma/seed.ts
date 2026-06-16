@@ -14,7 +14,17 @@ const TAGS = [
   'プロジェクトマネジメント',
   'AI',
   'Claude Code',
-  'Claude Code Skills',
+  // ツール軸（CC = Claude Code の略。「何で動かすか」で分類する）
+  'CC / Built-in Tools',   // Read / Write / Edit / Bash 等の組み込みツール
+  'CC / Agent & Workflow', // Agent, Workflow, サブエージェント連携
+  'CC / Skills',           // スキル（SKILL.md）の作成・運用
+  'CC / Hooks',            // Pre/PostToolUse 等のフック設計
+  'CC / MCP',              // MCP サーバーの導入・活用
+  'CC / API & SDK',        // Anthropic SDK / Claude API 直接利用
+  'CC / 設定・構成',       // settings.json / CLAUDE.md / keybindings
+  'CC / チーム運用',       // ルール共有・worktree 並列開発・チーム導入
+  'CC / CI/CD',            // GitHub Actions 等の自動化連携
+  // その他
   'チーム開発',
   '開発環境',
   'コード品質',
@@ -49,7 +59,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Built-in Tools', 'CC / Skills', 'AI'],
   },
   {
     title: 'Claude Codeの失敗をチームルールに昇格させる仕組み',
@@ -62,7 +72,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['チーム開発', 'AI', 'Claude Code'],
+    tags: ['CC / チーム運用', 'AI', 'チーム開発'],
   },
   {
     title: 'DB・ドメインは分離、Claude設定は共通化 ── git worktreeで並列開発環境をセットアップする',
@@ -75,7 +85,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['AI', 'Claude Code', '開発環境'],
+    tags: ['CC / チーム運用', 'AI', '開発環境'],
   },
   {
     title: 'ルール準拠を自動チェックする（後編）— Claude Codeに『オレたち流』を守らせる',
@@ -88,7 +98,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['チーム開発', 'AI', 'Claude Code'],
+    tags: ['CC / Hooks', 'CC / チーム運用', 'AI', 'チーム開発'],
   },
   {
     title: 'Claude Codeで始めるコード品質の見える化',
@@ -101,7 +111,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['コード品質', 'AI', 'Claude Code'],
+    tags: ['CC / Agent & Workflow', 'AI', 'コード品質'],
   },
   {
     title: 'Claude Code Skills のアンチパターン — 「なぜ Skills か」から考え直す設計の落とし穴',
@@ -113,7 +123,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'AI時代のE2Eテスト、PlaywrightとVibiumをどう使い分けるか',
@@ -138,7 +148,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'Claude Agents！機能が多い！でもここだけ抑えたら便利に使える！',
@@ -150,7 +160,7 @@ const RESOURCES: Array<{
     scene: '学習',
     status: '未読',
     pinned: false,
-    tags: ['AI', 'Claude Code'],
+    tags: ['CC / Agent & Workflow', 'AI'],
   },
   {
     title: 'Claude Codeのスキルが毎日勝手に改善されていく仕組みを作った',
@@ -161,7 +171,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: '未読',
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Skills', 'CC / Agent & Workflow', 'AI'],
   },
   {
     title: '実践フルAIコーディング',
@@ -209,7 +219,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['チーム開発', 'AI', 'Claude Code'],
+    tags: ['CC / Agent & Workflow', 'CC / CI/CD', 'AI', 'チーム開発'],
   },
   {
     title: '全PRの83%をAIレビューだけでマージできるようにした',
@@ -232,7 +242,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['テスト', 'AI', 'Claude Code'],
+    tags: ['CC / Agent & Workflow', 'AI', 'テスト'],
   },
   {
     title: 'PlaywrightのCIが80分→35分に：実行時間ベースのバランスドシャーディングを自作した話',
@@ -256,7 +266,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Skills', 'CC / 設定・構成', 'AI'],
   },
   {
     title: 'Claude CodeからPull Requestのレビュー操作を便利に行うClaude Skillsを作った',
@@ -269,7 +279,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['Claude Code Skills', 'AI', 'Claude Code'],
+    tags: ['CC / Skills', 'AI'],
   },
   {
     title:
@@ -282,7 +292,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['AI', 'Claude Code'],
+    tags: ['CC / 設定・構成', 'AI'],
   },
   {
     title: 'design.md',
@@ -293,7 +303,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['AI', 'Claude Code', 'デザイン'],
+    tags: ['CC / 設定・構成', 'AI', 'デザイン'],
   },
   {
     title: 'textlint-rule-preset-ja-technical-writing',
@@ -337,7 +347,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['AI', 'Claude Code', 'デザイン'],
+    tags: ['CC / 設定・構成', 'AI', 'デザイン'],
   },
   {
     title: 'mizchi/skills',
@@ -348,7 +358,7 @@ const RESOURCES: Array<{
     scene: '実装の参考',
     status: null,
     pinned: false,
-    tags: ['Claude Code Skills', 'AI'],
+    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'Material Symbols and Icons - Google Fonts',
