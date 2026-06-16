@@ -1,0 +1,79 @@
+// link-keeper: 残しておきたいリンクを種類・タグ・シーンで管理する個人ライブラリ
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Resource {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  url         String
+  category    Category     @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  type        ResourceType @relation(fields: [typeId], references: [id])
+  typeId      String
+  scene       Scene?       @relation(fields: [sceneId], references: [id])
+  sceneId     String?
+  // 実践状況（進捗）。既存データ移行のため null 許容、UI 上は未設定を「未読」扱いにする
+  status      Status?      @relation(fields: [statusId], references: [id])
+  statusId    String?
+  // 「再読・共有したい」印。実践状況とは独立して引っ張り出すためのフラグ
+  pinned      Boolean      @default(false)
+  // 登録時に感じたポイント・一言メモ。一覧カードに 💡 で表示する
+  memo        String?
+  tags        Tag[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([categoryId])
+  @@index([typeId])
+  @@index([sceneId])
+  @@index([statusId])
+}
+
+// 大カテゴリ。「1年後にも使えるか」で二分する最上位の区分
+//   知識 = 1年後も使える普遍的な内容 / 情報 = 旬で流動的、1年後には古びうる内容
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  resources Resource[]
+}
+
+// テンプレート / 書籍 / 動画 / Skills・Plugin / 記事 など（準固定マスタ）
+model ResourceType {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  resources Resource[]
+}
+
+// 初めてのPM / AI学習 / 思考力強化 など（準固定マスタ）
+model Scene {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  resources Resource[]
+}
+
+// 実践状況（進捗）。未読 → 後で挑戦 → 実践済み（sortOrder 順に循環）
+model Status {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  resources Resource[]
+}
+
+// プロジェクトマネジメント / AI / Claude Code など（多対多）
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  resources Resource[]
+}
