@@ -4,39 +4,32 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 
-// FormData から Resource の入力値を取り出す。title / url / 大カテゴリ / 種類 は必須。
 function parseForm(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim()
   const url = String(formData.get('url') ?? '').trim()
   const categoryId = String(formData.get('categoryId') ?? '').trim()
   const typeId = String(formData.get('typeId') ?? '').trim()
-  if (!title || !url || !categoryId || !typeId) {
-    throw new Error('title・url・大カテゴリ・種類は必須です')
+  const topicId = String(formData.get('topicId') ?? '').trim()
+  if (!title || !url || !categoryId || !typeId || !topicId) {
+    throw new Error('title・url・大カテゴリ・種類・話題は必須です')
   }
   const description = String(formData.get('description') ?? '').trim() || null
   const memo = String(formData.get('memo') ?? '').trim() || null
-  const sceneId = String(formData.get('sceneId') ?? '').trim() || null
   const statusId = String(formData.get('statusId') ?? '').trim() || null
   const pinned = formData.get('pinned') != null
-  const tagIds = formData.getAll('tagIds').map(String)
-  return { title, url, categoryId, typeId, description, memo, sceneId, statusId, pinned, tagIds }
+  return { title, url, categoryId, typeId, topicId, description, memo, statusId, pinned }
 }
 
 export async function createResource(formData: FormData) {
-  const { tagIds, ...data } = parseForm(formData)
-  await db.resource.create({
-    data: { ...data, tags: { connect: tagIds.map((id) => ({ id })) } },
-  })
+  const data = parseForm(formData)
+  await db.resource.create({ data })
   revalidatePath('/')
   redirect('/')
 }
 
 export async function updateResource(id: string, formData: FormData) {
-  const { tagIds, ...data } = parseForm(formData)
-  await db.resource.update({
-    where: { id },
-    data: { ...data, tags: { set: tagIds.map((tid) => ({ id: tid })) } },
-  })
+  const data = parseForm(formData)
+  await db.resource.update({ where: { id }, data })
   revalidatePath('/')
   redirect('/')
 }
@@ -47,7 +40,6 @@ export async function deleteResource(id: string) {
   redirect('/')
 }
 
-// 実践状況をワンタップで循環させる（未読 → 後で挑戦 → 実践済み → 未読）。
 export async function cycleStatus(id: string) {
   const [resource, statuses] = await Promise.all([
     db.resource.findUnique({ where: { id }, select: { statusId: true } }),
@@ -60,7 +52,6 @@ export async function cycleStatus(id: string) {
   revalidatePath('/')
 }
 
-// 「再読・共有したい」⭐ フラグをトグルする。
 export async function togglePin(id: string) {
   const resource = await db.resource.findUnique({ where: { id }, select: { pinned: true } })
   if (!resource) return

@@ -7,21 +7,17 @@ export function ResourceForm({
   action,
   categories,
   types,
-  scenes,
+  topics,
   statuses,
-  tags,
   resource,
 }: {
   action: (formData: FormData) => void
   categories: Option[]
   types: Option[]
-  scenes: Option[]
+  topics: Option[]
   statuses: Option[]
-  tags: Option[]
   resource?: ResourceWithRelations
 }) {
-  const selectedTagIds = new Set(resource?.tags.map((t) => t.id) ?? [])
-
   return (
     <form action={action} className="space-y-5">
       <Field label="タイトル" required>
@@ -48,7 +44,14 @@ export function ResourceForm({
         />
       </Field>
 
-      <Field label={<><span className="material-symbols-outlined mr-0.5 text-sm">lightbulb</span>一言メモ（登録時に感じたポイント）</>}>
+      <Field
+        label={
+          <>
+            <span className="material-symbols-outlined mr-0.5 text-sm">lightbulb</span>
+            一言メモ（登録時に感じたポイント）
+          </>
+        }
+      >
         <textarea
           name="memo"
           rows={2}
@@ -95,12 +98,19 @@ export function ResourceForm({
           </select>
         </Field>
 
-        <Field label="シーン">
-          <select name="sceneId" defaultValue={resource?.sceneId ?? ''} className={inputClass}>
-            <option value="">（未設定）</option>
-            {scenes.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
+        <Field label="話題" required>
+          <select
+            name="topicId"
+            required
+            defaultValue={resource?.topicId ?? ''}
+            className={inputClass}
+          >
+            <option value="" disabled>
+              選択してください
+            </option>
+            {topics.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
               </option>
             ))}
           </select>
@@ -125,26 +135,9 @@ export function ResourceForm({
           defaultChecked={resource?.pinned ?? false}
           className="accent-amber-500"
         />
-        <span className="material-symbols-outlined text-sm leading-none">star</span>
-        {' '}再読・共有したい（いつでも引っ張り出せるように印を付ける）
+        <span className="material-symbols-outlined text-sm leading-none">star</span>{' '}
+        再読・共有したい（いつでも引っ張り出せるように印を付ける）
       </label>
-
-      <Field label="タグ">
-        <div className="flex flex-wrap gap-3">
-          {tags.map((tag) => (
-            <label key={tag.id} className="flex items-center gap-1.5 text-sm text-zinc-700">
-              <input
-                type="checkbox"
-                name="tagIds"
-                value={tag.id}
-                defaultChecked={selectedTagIds.has(tag.id)}
-                className="accent-zinc-900"
-              />
-              #{tag.name}
-            </label>
-          ))}
-        </div>
-      </Field>
 
       <div className="flex items-center gap-3 pt-2">
         <button

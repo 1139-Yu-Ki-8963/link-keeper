@@ -5,37 +5,25 @@ import { PrismaClient } from '../app/generated/prisma/client'
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL ?? 'file:./dev.db' })
 const db = new PrismaClient({ adapter })
 
-// マスタ（分類軸）。大カテゴリ = 「1年後にも使えるか」で二分する最上位区分（知識 / 情報）
 const CATEGORIES = ['知識', '情報']
 const TYPES = ['記事', 'リポジトリ', '書籍', '動画', 'ツール', 'テンプレート']
-const SCENES = ['あとで読む', '学習', 'アイデア', '実装の参考', '仕事で使う']
 const STATUSES = ['未読', '後で挑戦', '実践済み']
-const TAGS = [
-  'プロジェクトマネジメント',
-  'AI',
-  'Claude Code',
-  // ツール軸（CC = Claude Code の略。「何で動かすか」で分類する）
-  'CC / Built-in Tools',   // Read / Write / Edit / Bash 等の組み込みツール
-  'CC / Agent & Workflow', // Agent, Workflow, サブエージェント連携
-  'CC / Skills',           // スキル（SKILL.md）の作成・運用
-  'CC / Hooks',            // Pre/PostToolUse 等のフック設計
-  'CC / MCP',              // MCP サーバーの導入・活用
-  'CC / API & SDK',        // Anthropic SDK / Claude API 直接利用
-  'CC / 設定・構成',       // settings.json / CLAUDE.md / keybindings
-  'CC / チーム運用',       // ルール共有・worktree 並列開発・チーム導入
-  'CC / CI/CD',            // GitHub Actions 等の自動化連携
-  // その他
-  'チーム開発',
-  '開発環境',
-  'コード品質',
+// CC 構成要素 7 + 記事テーマ 4。ポータル設計ガイドの分類に準拠
+const TOPICS = [
+  'CLAUDE.md',
+  'Rules',
+  'Skills',
+  'Hooks',
+  'Agents',
+  'Workflow',
+  'MCP',
   'テスト',
-  'フロントエンド',
   'デザイン',
-  '生産性',
+  'チーム・CI',
+  'コード品質',
+  'ドキュメント改善',
 ]
 
-// 登録済みの記事。url を一意キーに冪等投入する（既存 dev.db では skip し、リセット後は復元する）。
-// この配列は dev.db の実データから生成している。新規登録は画面から行い、必要に応じ再生成する。
 const RESOURCES: Array<{
   title: string
   description: string | null
@@ -43,10 +31,9 @@ const RESOURCES: Array<{
   url: string
   category: string
   type: string
-  scene: string | null
+  topic: string
   status: string | null
   pinned: boolean
-  tags: string[]
 }> = [
   {
     title: 'Claude Codeのスキルを書くときに便利だった3つの組み込みツール',
@@ -56,10 +43,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/sonicgarden/articles/claude-code-skill-building-tools',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: '未読',
     pinned: false,
-    tags: ['CC / Built-in Tools', 'CC / Skills', 'AI'],
   },
   {
     title: 'Claude Codeの失敗をチームルールに昇格させる仕組み',
@@ -69,10 +55,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/dely_jp/articles/5bc3e9cf62d776',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Rules',
     status: '未読',
     pinned: false,
-    tags: ['CC / チーム運用', 'AI', 'チーム開発'],
   },
   {
     title: 'DB・ドメインは分離、Claude設定は共通化 ── git worktreeで並列開発環境をセットアップする',
@@ -82,10 +67,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/sonicgarden/articles/4af20794b8a0f7',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'CLAUDE.md',
     status: '未読',
     pinned: false,
-    tags: ['CC / チーム運用', 'AI', '開発環境'],
   },
   {
     title: 'ルール準拠を自動チェックする（後編）— Claude Codeに『オレたち流』を守らせる',
@@ -95,10 +79,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/sonicgarden/articles/claude-code-custom-rules-part3',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Hooks',
     status: '未読',
     pinned: false,
-    tags: ['CC / Hooks', 'CC / チーム運用', 'AI', 'チーム開発'],
   },
   {
     title: 'Claude Codeで始めるコード品質の見える化',
@@ -108,10 +91,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/nexta_/articles/claude-code-quality-metrics',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Workflow',
     status: '未読',
     pinned: false,
-    tags: ['CC / Agent & Workflow', 'AI', 'コード品質'],
   },
   {
     title: 'Claude Code Skills のアンチパターン — 「なぜ Skills か」から考え直す設計の落とし穴',
@@ -120,10 +102,9 @@ const RESOURCES: Array<{
     url: 'https://qiita.com/nogataka/items/ea4e7d78651d6ed46796',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: '未読',
     pinned: false,
-    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'AI時代のE2Eテスト、PlaywrightとVibiumをどう使い分けるか',
@@ -132,10 +113,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/tokium_dev/articles/b0df516ba8750d',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'テスト',
     status: '未読',
     pinned: false,
-    tags: ['テスト', 'AI'],
   },
   {
     title:
@@ -145,10 +125,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/spacemarket/articles/6c4992227d0b0d',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: '未読',
     pinned: false,
-    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'Claude Agents！機能が多い！でもここだけ抑えたら便利に使える！',
@@ -157,10 +136,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/nana/articles/3fd7e9dffeb831',
     category: '情報',
     type: '記事',
-    scene: '学習',
+    topic: 'Agents',
     status: '未読',
     pinned: false,
-    tags: ['CC / Agent & Workflow', 'AI'],
   },
   {
     title: 'Claude Codeのスキルが毎日勝手に改善されていく仕組みを作った',
@@ -168,10 +146,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/sonicgarden/articles/claude-code-self-improving-loop',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: '未読',
     pinned: false,
-    tags: ['CC / Skills', 'CC / Agent & Workflow', 'AI'],
   },
   {
     title: '実践フルAIコーディング',
@@ -179,10 +156,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/erukiti/articles/2512-full-ai-cofing',
     category: '情報',
     type: '記事',
-    scene: '学習',
+    topic: 'Workflow',
     status: '未読',
     pinned: false,
-    tags: ['AI'],
   },
   {
     title: 'AI開発の現実解はレベル7やで ― Agentic Engineering 8レベルでチームの立ち位置を測る',
@@ -191,10 +167,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/masayan1126/articles/agentic-engineering-8-levels',
     category: '知識',
     type: '記事',
-    scene: '学習',
+    topic: 'チーム・CI',
     status: null,
     pinned: false,
-    tags: ['チーム開発', 'AI'],
   },
   {
     title: 'E2Eテストのカバレッジはどう定義する？「全量」をチームの合意で決めるための考え方',
@@ -203,10 +178,9 @@ const RESOURCES: Array<{
     url: 'https://magicpod.com/blog/e2e-test-coverage/',
     category: '知識',
     type: '記事',
-    scene: '学習',
+    topic: 'テスト',
     status: null,
     pinned: false,
-    tags: ['チーム開発', 'テスト'],
   },
   {
     title:
@@ -216,10 +190,9 @@ const RESOURCES: Array<{
     url: 'https://qiita.com/nogataka/items/ceae4e70fc4cca2e2c9e',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Workflow',
     status: null,
     pinned: false,
-    tags: ['CC / Agent & Workflow', 'CC / CI/CD', 'AI', 'チーム開発'],
   },
   {
     title: '全PRの83%をAIレビューだけでマージできるようにした',
@@ -227,10 +200,9 @@ const RESOURCES: Array<{
     url: 'https://zenn.dev/kauche/articles/e051583461c181',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'チーム・CI',
     status: null,
     pinned: false,
-    tags: ['チーム開発', 'AI'],
   },
   {
     title: '深夜のE2Eテスト失敗をClaude Codeが自動修正してPRを作る仕組みの構築',
@@ -239,10 +211,9 @@ const RESOURCES: Array<{
     url: 'https://tech.kickflow.co.jp/entry/2026/04/03/113600',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'テスト',
     status: null,
     pinned: false,
-    tags: ['CC / Agent & Workflow', 'AI', 'テスト'],
   },
   {
     title: 'PlaywrightのCIが80分→35分に：実行時間ベースのバランスドシャーディングを自作した話',
@@ -251,10 +222,9 @@ const RESOURCES: Array<{
     url: 'https://tech.kickflow.co.jp/entry/2026/03/13/080220',
     category: '知識',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'テスト',
     status: '未読',
     pinned: false,
-    tags: ['テスト'],
   },
   {
     title: 'Claude Code Skills 共有管理 — 4つのAIツールを1リポジトリで統一する方法',
@@ -263,10 +233,9 @@ const RESOURCES: Array<{
     url: 'https://www.playpark.co.jp/blog/multi-agent-skills-sharing',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: null,
     pinned: false,
-    tags: ['CC / Skills', 'CC / 設定・構成', 'AI'],
   },
   {
     title: 'Claude CodeからPull Requestのレビュー操作を便利に行うClaude Skillsを作った',
@@ -276,10 +245,9 @@ const RESOURCES: Array<{
     url: 'https://blog.shibayu36.org/entry/2025/12/17/173000',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: null,
     pinned: false,
-    tags: ['CC / Skills', 'AI'],
   },
   {
     title:
@@ -289,10 +257,9 @@ const RESOURCES: Array<{
     url: 'https://nyosegawa.com/posts/claude-code-statusline-rate-limits/',
     category: '情報',
     type: '記事',
-    scene: '実装の参考',
+    topic: 'CLAUDE.md',
     status: null,
     pinned: false,
-    tags: ['CC / 設定・構成', 'AI'],
   },
   {
     title: 'design.md',
@@ -300,10 +267,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/google-labs-code/design.md',
     category: '知識',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'デザイン',
     status: null,
     pinned: false,
-    tags: ['CC / 設定・構成', 'AI', 'デザイン'],
   },
   {
     title: 'textlint-rule-preset-ja-technical-writing',
@@ -311,10 +277,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing',
     category: '知識',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'コード品質',
     status: null,
     pinned: false,
-    tags: ['コード品質'],
   },
   {
     title: 'textlint-rule-preset-ai-writing',
@@ -322,10 +287,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/textlint-ja/textlint-rule-preset-ai-writing',
     category: '知識',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'ドキュメント改善',
     status: null,
     pinned: false,
-    tags: ['コード品質', 'AI'],
   },
   {
     title: 'supabase/agent-skills',
@@ -333,10 +297,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/supabase/agent-skills',
     category: '情報',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'Agents',
     status: null,
     pinned: false,
-    tags: ['AI', '開発環境'],
   },
   {
     title: 'awesome-design-md-jp',
@@ -344,10 +307,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/kzhrknt/awesome-design-md-jp',
     category: '情報',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'デザイン',
     status: null,
     pinned: false,
-    tags: ['CC / 設定・構成', 'AI', 'デザイン'],
   },
   {
     title: 'mizchi/skills',
@@ -355,10 +317,9 @@ const RESOURCES: Array<{
     url: 'https://github.com/mizchi/skills',
     category: '情報',
     type: 'リポジトリ',
-    scene: '実装の参考',
+    topic: 'Skills',
     status: null,
     pinned: false,
-    tags: ['CC / Skills', 'AI'],
   },
   {
     title: 'Material Symbols and Icons - Google Fonts',
@@ -367,10 +328,21 @@ const RESOURCES: Array<{
     url: 'https://fonts.google.com/icons',
     category: '知識',
     type: 'ツール',
-    scene: '実装の参考',
+    topic: 'デザイン',
     status: null,
     pinned: false,
-    tags: ['デザイン', 'フロントエンド'],
+  },
+  {
+    title: '日本語技術文書の文章規範',
+    description:
+      '日本語で技術書の章・記事・解説文を書くときの文章規範。整形・段落構成・論証の厳密さ・冗長の排除を定める。',
+    memo: null,
+    url: 'https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d',
+    category: '知識',
+    type: '記事',
+    topic: 'ドキュメント改善',
+    status: null,
+    pinned: false,
   },
 ]
 
@@ -389,8 +361,8 @@ async function main() {
       create: { name, sortOrder: i },
     })
   }
-  for (const [i, name] of SCENES.entries()) {
-    await db.scene.upsert({
+  for (const [i, name] of TOPICS.entries()) {
+    await db.topic.upsert({
       where: { name },
       update: { sortOrder: i },
       create: { name, sortOrder: i },
@@ -403,13 +375,10 @@ async function main() {
       create: { name, sortOrder: i },
     })
   }
-  for (const name of TAGS) {
-    await db.tag.upsert({ where: { name }, update: {}, create: { name } })
-  }
 
   const cat = Object.fromEntries((await db.category.findMany()).map((x) => [x.name, x.id]))
   const type = Object.fromEntries((await db.resourceType.findMany()).map((x) => [x.name, x.id]))
-  const scene = Object.fromEntries((await db.scene.findMany()).map((x) => [x.name, x.id]))
+  const topic = Object.fromEntries((await db.topic.findMany()).map((x) => [x.name, x.id]))
   const status = Object.fromEntries((await db.status.findMany()).map((x) => [x.name, x.id]))
 
   let created = 0
@@ -424,9 +393,8 @@ async function main() {
         pinned: r.pinned,
         categoryId: cat[r.category],
         typeId: type[r.type],
-        sceneId: r.scene ? scene[r.scene] : null,
+        topicId: topic[r.topic],
         statusId: r.status ? status[r.status] : null,
-        tags: { connect: r.tags.map((name) => ({ name })) },
       },
     })
     created++
@@ -434,7 +402,7 @@ async function main() {
 
   const total = await db.resource.count()
   console.log(
-    `seed 完了: Category ${CATEGORIES.length} / Type ${TYPES.length} / Scene ${SCENES.length} / Status ${STATUSES.length} / Tag ${TAGS.length} / Resource ${total}件（新規 ${created}件）`,
+    `seed 完了: Category ${CATEGORIES.length} / Type ${TYPES.length} / Topic ${TOPICS.length} / Status ${STATUSES.length} / Resource ${total}件（新規 ${created}件）`,
   )
 }
 

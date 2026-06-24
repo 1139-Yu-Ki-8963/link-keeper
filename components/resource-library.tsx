@@ -5,46 +5,37 @@ import { EMPTY_FILTERS, type Filters, type Option, type ResourceWithRelations } 
 import { FilterPanel } from './filter-panel'
 import { ResourceCard } from './resource-card'
 
-// 全件をサーバーから受け取り、クライアント側で AND 絞り込みする一覧の中核。
-// iPhone 前提のため、フィルタは上部・本文は縦 1 カラムの読み物リストにする。
 export function ResourceLibrary({
   resources,
   categories,
   types,
-  scenes,
+  topics,
   statuses,
-  tags,
 }: {
   resources: ResourceWithRelations[]
   categories: Option[]
   types: Option[]
-  scenes: Option[]
+  topics: Option[]
   statuses: Option[]
-  tags: Option[]
 }) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
 
   const hasActiveFilters =
     filters.keyword.trim() !== '' ||
     filters.categoryId !== null ||
+    filters.topicId !== null ||
     filters.typeId !== null ||
-    filters.sceneId !== null ||
     filters.statusId !== null ||
-    filters.pinnedOnly ||
-    filters.tagIds.length > 0
+    filters.pinnedOnly
 
   const filtered = useMemo(() => {
     const keyword = filters.keyword.trim().toLowerCase()
     return resources.filter((r) => {
       if (filters.categoryId && r.categoryId !== filters.categoryId) return false
+      if (filters.topicId && r.topicId !== filters.topicId) return false
       if (filters.typeId && r.typeId !== filters.typeId) return false
-      if (filters.sceneId && r.sceneId !== filters.sceneId) return false
       if (filters.statusId && r.statusId !== filters.statusId) return false
       if (filters.pinnedOnly && !r.pinned) return false
-      if (filters.tagIds.length > 0) {
-        const tagIds = new Set(r.tags.map((t) => t.id))
-        if (!filters.tagIds.every((id) => tagIds.has(id))) return false
-      }
       if (keyword) {
         const haystack = `${r.title} ${r.description ?? ''}`.toLowerCase()
         if (!haystack.includes(keyword)) return false
@@ -60,9 +51,8 @@ export function ResourceLibrary({
         setFilters={setFilters}
         categories={categories}
         types={types}
-        scenes={scenes}
+        topics={topics}
         statuses={statuses}
-        tags={tags}
         hasActiveFilters={hasActiveFilters}
         onClear={() => setFilters(EMPTY_FILTERS)}
       />

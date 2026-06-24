@@ -3,12 +3,11 @@ import { db } from '@/lib/db'
 import { createResource } from '../actions'
 
 export default async function NewResourcePage() {
-  const [categories, types, scenes, statuses, tags] = await Promise.all([
+  const [categories, types, topics, statuses] = await Promise.all([
     db.category.findMany({ orderBy: { sortOrder: 'asc' } }),
     db.resourceType.findMany({ orderBy: { sortOrder: 'asc' } }),
-    db.scene.findMany({ orderBy: { sortOrder: 'asc' } }),
+    db.topic.findMany({ orderBy: { sortOrder: 'asc' } }),
     db.status.findMany({ orderBy: { sortOrder: 'asc' } }),
-    db.tag.findMany({ orderBy: { name: 'asc' } }),
   ])
 
   return (
@@ -18,9 +17,8 @@ export default async function NewResourcePage() {
         action={createResource}
         categories={categories}
         types={types}
-        scenes={scenes}
+        topics={topics}
         statuses={statuses}
-        tags={tags}
       />
     </div>
   )

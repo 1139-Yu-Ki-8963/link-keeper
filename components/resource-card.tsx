@@ -2,9 +2,6 @@ import Link from 'next/link'
 import { cycleStatus, togglePin } from '@/app/resources/actions'
 import type { ResourceWithRelations } from '@/lib/types'
 
-// iPhone での読みやすさを優先した一覧の 1 行。
-// リンクは「タイトルだけ」に限定し（別タブで開く）、★・状態・編集は独立したタップ領域にする。
-// 以前はカード全面をリンクにしていたが、★ の誤タップでリンクが開く問題があったため廃止した。
 export function ResourceCard({ resource }: { resource: ResourceWithRelations }) {
   const statusName = resource.status?.name ?? '未読'
 
@@ -17,14 +14,11 @@ export function ResourceCard({ resource }: { resource: ResourceWithRelations }) 
         <span className="rounded-full bg-zinc-900 px-2 py-0.5 font-medium text-white">
           {resource.type.name}
         </span>
-        {resource.scene && (
-          <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-zinc-500">
-            {resource.scene.name}
-          </span>
-        )}
+        <span className="rounded-full border border-zinc-300 px-2 py-0.5 text-zinc-500">
+          {resource.topic.name}
+        </span>
       </div>
 
-      {/* リンクはタイトルのみ。大きめのタップ領域＋リンク色＋下線＋↗で明示し、別タブで開く */}
       <a
         href={resource.url}
         target="_blank"
@@ -53,19 +47,7 @@ export function ResourceCard({ resource }: { resource: ResourceWithRelations }) 
 
       <span className="mt-1 block truncate text-[11px] text-zinc-400">{resource.url}</span>
 
-      {resource.tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5">
-          {resource.tags.map((tag) => (
-            <span key={tag.id} className="text-xs text-zinc-400">
-              #{tag.name}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* 操作エリア（リンクとは別の独立した行）。指で押しやすいサイズにする */}
       <div className="mt-3 flex items-center gap-2">
-        {/* 実践状況: タップで 未読 → 後で挑戦 → 実践済み を循環 */}
         <form action={cycleStatus.bind(null, resource.id)}>
           <button
             type="submit"
@@ -82,7 +64,6 @@ export function ResourceCard({ resource }: { resource: ResourceWithRelations }) 
           </button>
         </form>
 
-        {/* 再読・共有したい ⭐ */}
         <form action={togglePin.bind(null, resource.id)}>
           <button
             type="submit"

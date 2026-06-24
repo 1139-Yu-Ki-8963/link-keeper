@@ -1,4 +1,4 @@
-// link-keeper: 残しておきたいリンクを種類・タグ・シーンで管理する個人ライブラリ
+// link-keeper: 残しておきたいリンクを種類・話題で管理する個人ライブラリ
 // docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -19,22 +19,18 @@ model Resource {
   categoryId  String
   type        ResourceType @relation(fields: [typeId], references: [id])
   typeId      String
-  scene       Scene?       @relation(fields: [sceneId], references: [id])
-  sceneId     String?
-  // 実践状況（進捗）。既存データ移行のため null 許容、UI 上は未設定を「未読」扱いにする
+  topic       Topic        @relation(fields: [topicId], references: [id])
+  topicId     String
   status      Status?      @relation(fields: [statusId], references: [id])
   statusId    String?
-  // 「再読・共有したい」印。実践状況とは独立して引っ張り出すためのフラグ
   pinned      Boolean      @default(false)
-  // 登録時に感じたポイント・一言メモ。一覧カードに 💡 で表示する
   memo        String?
-  tags        Tag[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([categoryId])
   @@index([typeId])
-  @@index([sceneId])
+  @@index([topicId])
   @@index([statusId])
 }
 
@@ -55,8 +51,8 @@ model ResourceType {
   resources Resource[]
 }
 
-// 初めてのPM / AI学習 / 思考力強化 など（準固定マスタ）
-model Scene {
+// 話題（CC 7 個 + 記事テーマ 4 個）。単一選択の準固定マスタ
+model Topic {
   id        String     @id @default(cuid())
   name      String     @unique
   sortOrder Int        @default(0)
@@ -68,12 +64,5 @@ model Status {
   id        String     @id @default(cuid())
   name      String     @unique
   sortOrder Int        @default(0)
-  resources Resource[]
-}
-
-// プロジェクトマネジメント / AI / Claude Code など（多対多）
-model Tag {
-  id        String     @id @default(cuid())
-  name      String     @unique
   resources Resource[]
 }

@@ -2,16 +2,15 @@
 
 import type { Filters, Option } from '@/lib/types'
 
-// iPhone 前提の上部フィルタ。大カテゴリ・実践状況・⭐ を前面に出し、
-// 種類・シーン・タグは縦スペース節約のため折りたたみに収める。
+const CC_TOPIC_COUNT = 7
+
 export function FilterPanel({
   filters,
   setFilters,
   categories,
   types,
-  scenes,
+  topics,
   statuses,
-  tags,
   hasActiveFilters,
   onClear,
 }: {
@@ -19,27 +18,22 @@ export function FilterPanel({
   setFilters: (next: Filters) => void
   categories: Option[]
   types: Option[]
-  scenes: Option[]
+  topics: Option[]
   statuses: Option[]
-  tags: Option[]
   hasActiveFilters: boolean
   onClear: () => void
 }) {
   const toggleCategory = (id: string) =>
     setFilters({ ...filters, categoryId: filters.categoryId === id ? null : id })
+  const toggleTopic = (id: string) =>
+    setFilters({ ...filters, topicId: filters.topicId === id ? null : id })
   const toggleStatus = (id: string) =>
     setFilters({ ...filters, statusId: filters.statusId === id ? null : id })
   const toggleType = (id: string) =>
     setFilters({ ...filters, typeId: filters.typeId === id ? null : id })
-  const toggleScene = (id: string) =>
-    setFilters({ ...filters, sceneId: filters.sceneId === id ? null : id })
-  const toggleTag = (id: string) =>
-    setFilters({
-      ...filters,
-      tagIds: filters.tagIds.includes(id)
-        ? filters.tagIds.filter((t) => t !== id)
-        : [...filters.tagIds, id],
-    })
+
+  const ccTopics = topics.slice(0, CC_TOPIC_COUNT)
+  const themeTopics = topics.slice(CC_TOPIC_COUNT)
 
   return (
     <div className="space-y-3">
@@ -56,6 +50,32 @@ export function FilterPanel({
               {c.name}
             </Chip>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-semibold text-zinc-500">話題</h3>
+        <div className="space-y-1.5">
+          <div>
+            <span className="mr-1.5 text-[10px] font-medium text-zinc-400">Claude Code</span>
+            <span className="inline-flex flex-wrap gap-1.5">
+              {ccTopics.map((t) => (
+                <Chip key={t.id} active={filters.topicId === t.id} onClick={() => toggleTopic(t.id)}>
+                  {t.name}
+                </Chip>
+              ))}
+            </span>
+          </div>
+          <div>
+            <span className="mr-1.5 text-[10px] font-medium text-zinc-400">記事テーマ</span>
+            <span className="inline-flex flex-wrap gap-1.5">
+              {themeTopics.map((t) => (
+                <Chip key={t.id} active={filters.topicId === t.id} onClick={() => toggleTopic(t.id)}>
+                  {t.name}
+                </Chip>
+              ))}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -94,35 +114,17 @@ export function FilterPanel({
 
       <details className="group rounded-md border border-zinc-200 bg-white">
         <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm font-medium text-zinc-600">
-          絞り込み（種類・シーン・タグ）
+          形式で絞る
           <span className="material-symbols-outlined text-base leading-none text-zinc-400 transition-transform group-open:rotate-180">expand_more</span>
         </summary>
-        <div className="space-y-4 border-t border-zinc-100 px-3 py-3">
-          <FilterGroup title="リソースの種類">
+        <div className="border-t border-zinc-100 px-3 py-3">
+          <div className="flex flex-wrap gap-1.5">
             {types.map((t) => (
               <Chip key={t.id} active={filters.typeId === t.id} onClick={() => toggleType(t.id)}>
                 {t.name}
               </Chip>
             ))}
-          </FilterGroup>
-          <FilterGroup title="シーンで探す">
-            {scenes.map((s) => (
-              <Chip key={s.id} active={filters.sceneId === s.id} onClick={() => toggleScene(s.id)}>
-                {s.name}
-              </Chip>
-            ))}
-          </FilterGroup>
-          <FilterGroup title="タグ">
-            {tags.map((tag) => (
-              <Chip
-                key={tag.id}
-                active={filters.tagIds.includes(tag.id)}
-                onClick={() => toggleTag(tag.id)}
-              >
-                #{tag.name}
-              </Chip>
-            ))}
-          </FilterGroup>
+          </div>
         </div>
       </details>
 
@@ -135,15 +137,6 @@ export function FilterPanel({
           すべてクリア
         </button>
       )}
-    </div>
-  )
-}
-
-function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="mb-2 text-xs font-semibold text-zinc-500">{title}</h3>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
   )
 }

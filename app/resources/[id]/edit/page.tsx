@@ -5,16 +5,15 @@ import { deleteResource, updateResource } from '../../actions'
 
 export default async function EditResourcePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [resource, categories, types, scenes, statuses, tags] = await Promise.all([
+  const [resource, categories, types, topics, statuses] = await Promise.all([
     db.resource.findUnique({
       where: { id },
-      include: { category: true, type: true, scene: true, status: true, tags: true },
+      include: { category: true, type: true, topic: true, status: true },
     }),
     db.category.findMany({ orderBy: { sortOrder: 'asc' } }),
     db.resourceType.findMany({ orderBy: { sortOrder: 'asc' } }),
-    db.scene.findMany({ orderBy: { sortOrder: 'asc' } }),
+    db.topic.findMany({ orderBy: { sortOrder: 'asc' } }),
     db.status.findMany({ orderBy: { sortOrder: 'asc' } }),
-    db.tag.findMany({ orderBy: { name: 'asc' } }),
   ])
 
   if (!resource) notFound()
@@ -26,9 +25,8 @@ export default async function EditResourcePage({ params }: { params: Promise<{ i
         action={updateResource.bind(null, resource.id)}
         categories={categories}
         types={types}
-        scenes={scenes}
+        topics={topics}
         statuses={statuses}
-        tags={tags}
         resource={resource}
       />
 
