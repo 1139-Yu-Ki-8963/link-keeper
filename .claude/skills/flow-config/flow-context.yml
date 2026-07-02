@@ -1,0 +1,45 @@
+# link-keeper プロジェクト flow-context.yml
+
+# Phase 3 読み込み完了マーカー
+phase_3_context_loaded: true
+
+# ドメイン知識
+domain_glossary: null
+design_system: null
+adr_dir: null
+
+# ソース構造
+source:
+  design_docs: null
+  portal_dir: null
+
+# レビューゲート（未設定 — スキップ。旧 dev-flow-reviewing-* は 2026-07-02 のスキル統合で廃止。
+# orchestrating-dev-flow 側の新レビュー手順確定後に設定する）
+review_gates:
+  pre_impl: null
+  impl_quality: null
+  pre_push: null
+  e2e: null
+
+# PR 設定
+pr:
+  template: null
+  required_sections: []
+  critical_globs:
+    - "app/**"
+    - "lib/**"
+    - "components/**"
+    - "prisma/**"
+
+# ルート判定の閾値
+classify:
+  quick_max_files: 2
+  quick_excludes:
+    - migration
+    - schema_change
+    - api_contract
+    - ui_component
+
+# プリフライトチェック設定
+preflight:
+  skip_tools: []
