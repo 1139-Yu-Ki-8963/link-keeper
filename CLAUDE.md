@@ -18,7 +18,7 @@
 
 | 目的 | コマンド |
 |---|---|
-| dev サーバー | `npm run dev`（port 4500。※port-management-rules 上の割当は 8100 — 移行するまで現状は 4500） |
+| dev サーバー | `npm run dev`（port 8100。port-management-rules の規約割当へ移行済み（2026-07-07）） |
 | Lint / 型検査 | `npm run lint` / `npm run typecheck` |
 | DB マイグレーション | `npm run db:migrate` |
 | Prisma Studio | `npm run db:studio`（規約割当 8101） |

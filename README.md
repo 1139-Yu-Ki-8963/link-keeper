@@ -21,7 +21,7 @@
 npm install
 npm run db:migrate   # スキーマ反映（初回は dev.db を生成）
 npm run db:seed      # マスタ（種類/シーン/タグ）とサンプルを投入
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:8100
 ```
 
 ## 画面

@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 4500",
+    "dev": "next dev -H 0.0.0.0 -p 8100",
     "build": "next build",
-    "start": "next start -H 0.0.0.0 -p 4500",
+    "start": "next start -H 0.0.0.0 -p 8100",
     "lint": "biome check .",
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio",
+    "db:studio": "prisma studio --port 8101",
     "db:reset": "prisma migrate reset"
   },
   "prisma": {
