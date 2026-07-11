@@ -18,7 +18,25 @@
 ## 設定索引
 
 - 実装フロー設定: `.claude/rules/always/project-context/flow-values.yml`
-- ルート直下許可リスト: `.claude/rules/always/placement/directory-structure/rule.md`
+- ルート直下許可リスト: 本ファイル末尾「## ルート直下許可ディレクトリ」節
 - 命名規約の上書き（任意・置けば効く）: `.claude/rules/always/naming/commit-branch/naming-values.txt`
 - 文章置き換え辞書（任意・置けば効く）: `.claude/rules/always/review-checklist/text-dictionary/prh.yml`
 - レビュー観点（任意・置けば効く）: `.claude/rules/scoped/review-checklist/<domain>/<name>/rule.md`
+
+## ルート直下許可ディレクトリ
+
+| ディレクトリ名 | 用途 |
+|---|---|
+| app | Next.js App Router |
+| components | React コンポーネント |
+| lib | ユーティリティ・共通ロジック |
+| prisma | Prisma スキーマ・マイグレーション |
+| public | 静的アセット |
+
+## サブディレクトリ許可リスト
+
+### .claude
+
+| ディレクトリ名 | 用途 |
+|---|---|
+| rules | ルール定義（always/ scoped/ の標準体系） |
