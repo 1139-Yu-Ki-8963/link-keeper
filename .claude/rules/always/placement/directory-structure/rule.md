@@ -16,4 +16,4 @@
 
 | ディレクトリ名 | 用途 |
 |---|---|
-| rules | ルール定義（<rule-name>-rules/ パターン） |
+| rules | ルール定義（always/ scoped/ の標準体系） |

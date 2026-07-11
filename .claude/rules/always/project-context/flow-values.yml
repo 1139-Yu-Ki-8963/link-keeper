@@ -1,17 +1,13 @@
-# link-keeper プロジェクト flow-context.yml
-
-# Phase 3 読み込み完了マーカー
-phase_3_context_loaded: true
+# プロジェクト実装フロー設定（スキーマ正本: ~/.claude/rules/scoped/agent-config/project-structure/rule.md）
 
 # ドメイン知識
 domain_glossary: null
 design_system: null
 adr_dir: null
 
-# ソース構造
-source:
-  design_docs: null
-  portal_dir: null
+# ソース構造（旧 source.design_docs / source.portal_dir を平坦化）
+design_docs: null
+portal_dir: null
 
 # レビューゲート（未設定 — スキップ。旧 dev-flow-reviewing-* は 2026-07-02 のスキル統合で廃止。
 # orchestrating-dev-flow 側の新レビュー手順確定後に設定する）
