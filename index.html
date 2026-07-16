@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Keeper</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-card: #fff;
+    --text: #18181b;
+    --text-secondary: #52525b;
+    --text-tertiary: #a1a1aa;
+    --border: #e4e4e7;
+    --accent: #2563eb;
+    --chip-active-bg: #18181b;
+    --chip-active-text: #fff;
+    --chip-border: #d4d4d8;
+    --memo-bg: #fffbeb;
+    --memo-text: #92400e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #09090b;
+      --bg-card: #18181b;
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-tertiary: #71717a;
+      --border: #27272a;
+      --accent: #60a5fa;
+      --chip-active-bg: #fafafa;
+      --chip-active-text: #18181b;
+      --chip-border: #3f3f46;
+      --memo-bg: #422006;
+      --memo-text: #fbbf24;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #fafafa;
+    --bg-card: #fff;
+    --text: #18181b;
+    --text-secondary: #52525b;
+    --text-tertiary: #a1a1aa;
+    --border: #e4e4e7;
+    --accent: #2563eb;
+    --chip-active-bg: #18181b;
+    --chip-active-text: #fff;
+    --chip-border: #d4d4d8;
+    --memo-bg: #fffbeb;
+    --memo-text: #92400e;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #09090b;
+    --bg-card: #18181b;
+    --text: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --border: #27272a;
+    --accent: #60a5fa;
+    --chip-active-bg: #fafafa;
+    --chip-active-text: #18181b;
+    --chip-border: #3f3f46;
+    --memo-bg: #422006;
+    --memo-text: #fbbf24;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .layout {
+    display: flex;
+    gap: 2rem;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+  }
+
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+    align-self: flex-start;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    .layout {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      position: static;
+      max-height: none;
+    }
+  }
+
+  .filter-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-section h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.5rem;
+  }
+
+  .filter-subgroup {
+    margin-bottom: 0.75rem;
+  }
+
+  .filter-subgroup-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0 0 0.375rem;
+  }
+
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    border: 1px solid var(--chip-border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chip:hover {
+    border-color: var(--text-secondary);
+  }
+
+  .chip.active {
+    background: var(--chip-active-bg);
+    color: var(--chip-active-text);
+    border-color: var(--chip-active-bg);
+  }
+
+  .chip-big {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  #search {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 0.875rem;
+  }
+
+  details > summary {
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  #clear-filters {
+    display: none;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
+  .resource-card {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .resource-card .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.6875rem;
+  }
+
+  .tag-outlined,
+  .tag-filled,
+  .tag-subtle {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .tag-outlined {
+    border: 1px solid var(--text);
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .tag-filled {
+    background: var(--text);
+    color: var(--bg-card);
+    font-weight: 500;
+  }
+
+  .tag-subtle {
+    border: 1px solid var(--chip-border);
+    color: var(--text-tertiary);
+  }
+
+  .resource-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .resource-desc {
+    margin: 0.375rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  .resource-memo {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.5rem 0 0;
+    background: var(--memo-bg);
+    color: var(--memo-text);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+  }
+
+  .resource-url {
+    display: block;
+    margin-top: 0.375rem;
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+    font-size: 1rem;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+  <header style="padding: 1.5rem 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem">
+    <div class="container">
+      <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--text)">Link Keeper</h1>
+      <p id="count" style="font-size: 0.875rem; color: var(--text-tertiary)"></p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="filter-section">
+        <h3>大カテゴリ</h3>
+        <div class="chip-group" id="filter-categories"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>話題</h3>
+        <div class="filter-subgroup">
+          <p class="filter-subgroup-label">Claude Code</p>
+          <div class="chip-group" id="filter-topics-cc"></div>
+        </div>
+        <div class="filter-subgroup">
+          <p class="filter-subgroup-label">記事テーマ</p>
+          <div class="chip-group" id="filter-topics-theme"></div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h3>キーワード検索</h3>
+        <input type="search" id="search" placeholder="タイトル・説明で検索">
+      </div>
+
+      <div class="filter-section">
+        <details>
+          <summary>形式で絞る <span class="material-symbols-outlined">expand_more</span></summary>
+          <div class="chip-group" id="filter-types" style="margin-top: 0.5rem"></div>
+        </details>
+      </div>
+
+      <div class="filter-section">
+        <button id="clear-filters" onclick="clearAll()">すべてクリア</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="resources"></div>
+    </main>
+  </div>
+
+<script>
+/*CATALOG-DATA-START*/
+const VOCAB = {
+  "categories": [
+    "知識",
+    "情報"
+  ],
+  "types": [
+    "記事",
+    "リポジトリ",
+    "書籍",
+    "動画",
+    "ツール",
+    "テンプレート"
+  ],
+  "topics": [
+    {
+      "name": "CLAUDE.md",
+      "group": "Claude Code"
+    },
+    {
+      "name": "Rules",
+      "group": "Claude Code"
+    },
+    {
+      "name": "Skills",
+      "group": "Claude Code"
+    },
+    {
+      "name": "Hooks",
+      "group": "Claude Code"
+    },
+    {
+      "name": "Agents",
+      "group": "Claude Code"
+    },
+    {
+      "name": "Workflow",
+      "group": "Claude Code"
+    },
+    {
+      "name": "MCP",
+      "group": "Claude Code"
+    },
+    {
+      "name": "テスト",
+      "group": "記事テーマ"
+    },
+    {
+      "name": "デザイン",
+      "group": "記事テーマ"
+    },
+    {
+      "name": "チーム・CI",
+      "group": "記事テーマ"
+    },
+    {
+      "name": "コード品質",
+      "group": "記事テーマ"
+    },
+    {
+      "name": "ドキュメント改善",
+      "group": "記事テーマ"
+    }
+  ]
+};
+
+const RESOURCES = [
+  {
+    "title": "Claude Codeのスキルを書くときに便利だった3つの組み込みツール",
+    "url": "https://zenn.dev/sonicgarden/articles/claude-code-skill-building-tools",
+    "description": "Claude Code でスキル（SKILL.md）を書くときに役立つ、3つの組み込みツールの使いどころを実例とともに紹介。スキル作成を効率化したい人向けの実践的なノウハウ記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "Claude Codeの失敗をチームルールに昇格させる仕組み",
+    "url": "https://zenn.dev/dely_jp/articles/5bc3e9cf62d776",
+    "description": "Claude Code が起こした失敗を、その場の注意で終わらせずチーム共有のルールへ反映し、再発を防ぐ運用の仕組みを解説した記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Rules"
+  },
+  {
+    "title": "DB・ドメインは分離、Claude設定は共通化 ── git worktreeで並列開発環境をセットアップする",
+    "url": "https://zenn.dev/sonicgarden/articles/4af20794b8a0f7",
+    "description": "git worktree で複数作業を並行させつつ、DB・ドメインは分離し Claude 設定は共通化する並列開発環境の構築手順。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "CLAUDE.md"
+  },
+  {
+    "title": "ルール準拠を自動チェックする（後編）— Claude Codeに『オレたち流』を守らせる",
+    "url": "https://zenn.dev/sonicgarden/articles/claude-code-custom-rules-part3",
+    "description": "独自コーディング規約への準拠を自動チェックし、Claude Code にチーム流のルールを守らせる仕組みの実装（後編）。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Hooks"
+  },
+  {
+    "title": "Claude Codeで始めるコード品質の見える化",
+    "url": "https://zenn.dev/nexta_/articles/claude-code-quality-metrics",
+    "description": "Claude Code を使ってコード品質を計測・可視化し、改善につなげる始め方を紹介した記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Workflow"
+  },
+  {
+    "title": "Claude Code Skills のアンチパターン — 「なぜ Skills か」から考え直す設計の落とし穴",
+    "url": "https://qiita.com/nogataka/items/ea4e7d78651d6ed46796",
+    "description": "Claude Code Skills を作る際に陥りがちなアンチパターンを、「なぜ Skills を使うのか」という前提から問い直して整理した設計上の注意点。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "AI時代のE2Eテスト、PlaywrightとVibiumをどう使い分けるか",
+    "url": "https://zenn.dev/tokium_dev/articles/b0df516ba8750d",
+    "description": "AI時代のE2Eテストについて、従来型の Playwright と新興の Vibium の特徴を比較し、使い分けの指針を示した記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "テスト"
+  },
+  {
+    "title": "スペック文書を「読みたくなるHTML」に変換するClaude Codeスキルを作った話（スキル本文付き）",
+    "url": "https://zenn.dev/spacemarket/articles/6c4992227d0b0d",
+    "description": "スペック文書を「読みたくなるHTML」へ変換する Claude Code スキルを自作した過程の紹介（スキル本文付き）。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "Claude Agents！機能が多い！でもここだけ抑えたら便利に使える！",
+    "url": "https://zenn.dev/nana/articles/3fd7e9dffeb831",
+    "description": "機能が多い Claude Agents について、まず押さえておくと便利になる要点を絞って解説した入門記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Agents"
+  },
+  {
+    "title": "Claude Codeのスキルが毎日勝手に改善されていく仕組みを作った",
+    "url": "https://zenn.dev/sonicgarden/articles/claude-code-self-improving-loop",
+    "description": "Claude Code のスキルが毎日自動で改善されていく仕組みを構築した事例の解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "実践フルAIコーディング",
+    "url": "https://zenn.dev/erukiti/articles/2512-full-ai-cofing",
+    "description": "AI を全面的に活用した「フルAIコーディング」の実践的な進め方をまとめた記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Workflow"
+  },
+  {
+    "title": "AI開発の現実解はレベル7やで ― Agentic Engineering 8レベルでチームの立ち位置を測る",
+    "url": "https://zenn.dev/masayan1126/articles/agentic-engineering-8-levels",
+    "description": "AI開発の成熟度を Agentic Engineering の8レベルで捉え、チームが今どの段階にいるかを測るための枠組みを示した記事。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "topic": "チーム・CI"
+  },
+  {
+    "title": "E2Eテストのカバレッジはどう定義する？「全量」をチームの合意で決めるための考え方",
+    "url": "https://magicpod.com/blog/e2e-test-coverage/",
+    "description": "E2Eテストのカバレッジをどう定義するか、「全量」をチームの合意で決めるための考え方を整理した記事。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "topic": "テスト"
+  },
+  {
+    "title": "Claude CodeでPRレビューを自動化する設計と実装 ── 「AIレビューだけでマージ」を実現するまで",
+    "url": "https://qiita.com/nogataka/items/ceae4e70fc4cca2e2c9e",
+    "description": "Claude Code で PR レビューを自動化し、「AIレビューだけでマージ」を実現するまでの設計と実装を解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Workflow"
+  },
+  {
+    "title": "全PRの83%をAIレビューだけでマージできるようにした",
+    "url": "https://zenn.dev/kauche/articles/e051583461c181",
+    "description": "AIレビューを活用して全PRの83%を自動マージできるようにした取り組みの紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "チーム・CI"
+  },
+  {
+    "title": "深夜のE2Eテスト失敗をClaude Codeが自動修正してPRを作る仕組みの構築",
+    "url": "https://tech.kickflow.co.jp/entry/2026/04/03/113600",
+    "description": "深夜に失敗したE2Eテストを Claude Code が自動修正し、PR まで作る仕組みの構築事例。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "テスト"
+  },
+  {
+    "title": "PlaywrightのCIが80分→35分に：実行時間ベースのバランスドシャーディングを自作した話",
+    "url": "https://tech.kickflow.co.jp/entry/2026/03/13/080220",
+    "description": "Playwright の CI 実行時間を80分から35分へ短縮した、実行時間ベースのバランスドシャーディング自作の解説。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "topic": "テスト"
+  },
+  {
+    "title": "Claude Code Skills 共有管理 — 4つのAIツールを1リポジトリで統一する方法",
+    "url": "https://www.playpark.co.jp/blog/multi-agent-skills-sharing",
+    "description": "複数のAIコーディングツール間でスキルをsymlinkで一元管理し、保守コストを減らす手法を解説。Nix/home-managerによる配布自動化まで踏み込んでいる。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "Claude CodeからPull Requestのレビュー操作を便利に行うClaude Skillsを作った",
+    "url": "https://blog.shibayu36.org/entry/2025/12/17/173000",
+    "description": "インラインコメントの行ズレ・既存コメント取得・返信の3課題をSkills化で解決。diff取得時に行番号を明示表示することで正確な行指定を実現している。",
+    "memo": "PRレビューのインラインコメントを正しい行へ付けるには、diff取得時に行番号を明示表示する手法が鍵",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Skills"
+  },
+  {
+    "title": "Claude Codeの使用率がステータスラインに表示できるようになったので表示用のスクリプトを作った話",
+    "url": "https://nyosegawa.com/posts/claude-code-statusline-rate-limits/",
+    "description": "rate_limitsフィールドを使い、コンテキスト使用率と5時間・7日間の消費量をステータスバーに表示するPythonスクリプト5パターンを紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "CLAUDE.md"
+  },
+  {
+    "title": "design.md",
+    "url": "https://github.com/google-labs-code/design.md",
+    "description": "AIエージェントにデザインシステムを伝えるための構造化フォーマット仕様",
+    "memo": "",
+    "category": "知識",
+    "type": "リポジトリ",
+    "topic": "デザイン"
+  },
+  {
+    "title": "textlint-rule-preset-ja-technical-writing",
+    "url": "https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing",
+    "description": "日本語技術文書向けのtextlintルールプリセット",
+    "memo": "",
+    "category": "知識",
+    "type": "リポジトリ",
+    "topic": "ドキュメント改善"
+  },
+  {
+    "title": "textlint-rule-preset-ai-writing",
+    "url": "https://github.com/textlint-ja/textlint-rule-preset-ai-writing",
+    "description": "AI特有の文体パターンを検出し自然な日本語表現を促すtextlintプリセット",
+    "memo": "",
+    "category": "知識",
+    "type": "リポジトリ",
+    "topic": "ドキュメント改善"
+  },
+  {
+    "title": "supabase/agent-skills",
+    "url": "https://github.com/supabase/agent-skills",
+    "description": "AIエージェントがSupabaseを操作するためのスキル集",
+    "memo": "",
+    "category": "情報",
+    "type": "リポジトリ",
+    "topic": "Agents"
+  },
+  {
+    "title": "awesome-design-md-jp",
+    "url": "https://github.com/kzhrknt/awesome-design-md-jp",
+    "description": "日本語UIをAIエージェントに正しく作らせるためのDESIGN.md集",
+    "memo": "",
+    "category": "情報",
+    "type": "リポジトリ",
+    "topic": "デザイン"
+  },
+  {
+    "title": "mizchi/skills",
+    "url": "https://github.com/mizchi/skills",
+    "description": "mizchiによるAIエージェント向けスキル集（APM配信）",
+    "memo": "",
+    "category": "情報",
+    "type": "リポジトリ",
+    "topic": "Skills"
+  },
+  {
+    "title": "Material Symbols and Icons - Google Fonts",
+    "url": "https://fonts.google.com/icons",
+    "description": "",
+    "memo": "Googleが提供するマテリアルデザインのアイコンフォントライブラリ。SVG・PNG・フォント形式でダウンロードでき、Webアプリや資料のアイコン選定に使える。",
+    "category": "知識",
+    "type": "ツール",
+    "topic": "デザイン"
+  },
+  {
+    "title": "日本語技術文書の文章規範",
+    "url": "https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d",
+    "description": "日本語で技術書の章・記事・解説文を書くときの文章規範。整形・段落構成・論証の厳密さ・冗長の排除を定める。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "topic": "ドキュメント改善"
+  },
+  {
+    "title": "入門から実践 -「ループエンジニアリング」",
+    "url": "https://qiita.com/Syoitu/items/97ed37e7ba9c38dc75d8",
+    "description": "Claude Code のループエンジニアリングを入門から実践まで体系的に解説した記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Workflow"
+  },
+  {
+    "title": "もうプロンプトを書くな──「Loop Engineering」という新しいパラダイムの正体",
+    "url": "https://zenn.dev/acrosstudioblog/articles/38509c0473683a",
+    "description": "プロンプト単発実行から「Loop Engineering」へのパラダイム転換を論じた記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "topic": "Workflow"
+  }
+];
+/*CATALOG-DATA-END*/
+
+const state = { category: null, topic: null, type: null, keyword: '' };
+
+function init() {
+  renderFilters();
+  applyFilters();
+  document.getElementById('search').addEventListener('input', e => {
+    state.keyword = e.target.value;
+    applyFilters();
+  });
+}
+
+function renderFilters() {
+  // カテゴリチップ
+  const catContainer = document.getElementById('filter-categories');
+  VOCAB.categories.forEach(c => {
+    const btn = createChip(c, true);
+    btn.onclick = () => { state.category = state.category === c ? null : c; applyFilters(); updateChips(); };
+    catContainer.appendChild(btn);
+  });
+
+  // 話題チップ（2グループ）
+  const ccContainer = document.getElementById('filter-topics-cc');
+  const themeContainer = document.getElementById('filter-topics-theme');
+  VOCAB.topics.forEach(t => {
+    const btn = createChip(t.name);
+    btn.onclick = () => { state.topic = state.topic === t.name ? null : t.name; applyFilters(); updateChips(); };
+    (t.group === 'Claude Code' ? ccContainer : themeContainer).appendChild(btn);
+  });
+
+  // 種類チップ
+  const typeContainer = document.getElementById('filter-types');
+  VOCAB.types.forEach(t => {
+    const btn = createChip(t);
+    btn.onclick = () => { state.type = state.type === t ? null : t; applyFilters(); updateChips(); };
+    typeContainer.appendChild(btn);
+  });
+}
+
+function createChip(text, big) {
+  const btn = document.createElement('button');
+  btn.className = 'chip' + (big ? ' chip-big' : '');
+  btn.textContent = text;
+  btn.dataset.value = text;
+  return btn;
+}
+
+function updateChips() {
+  document.querySelectorAll('#filter-categories .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.category);
+  });
+  document.querySelectorAll('#filter-topics-cc .chip, #filter-topics-theme .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.topic);
+  });
+  document.querySelectorAll('#filter-types .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.type);
+  });
+  const clearBtn = document.getElementById('clear-filters');
+  clearBtn.style.display = (state.category || state.topic || state.type || state.keyword) ? '' : 'none';
+}
+
+function applyFilters() {
+  const filtered = RESOURCES.filter(r => {
+    if (state.category && r.category !== state.category) return false;
+    if (state.topic && r.topic !== state.topic) return false;
+    if (state.type && r.type !== state.type) return false;
+    if (state.keyword) {
+      const kw = state.keyword.toLowerCase();
+      if (!r.title.toLowerCase().includes(kw) && !(r.description || '').toLowerCase().includes(kw)) return false;
+    }
+    return true;
+  });
+  renderResources(filtered);
+  document.getElementById('count').textContent = filtered.length + ' 件';
+  updateChips();
+}
+
+function renderResources(list) {
+  const container = document.getElementById('resources');
+  if (!list.length) {
+    container.innerHTML = '<p style="color:var(--text-tertiary);padding:2rem 0;text-align:center">検索語を変えるか、絞り込みをクリアしてください</p>';
+    return;
+  }
+  container.innerHTML = list.map(r => `
+    <article class="resource-card">
+      <div class="tags">
+        <span class="tag-outlined">${esc(r.category)}</span>
+        <span class="tag-filled">${esc(r.type)}</span>
+        <span class="tag-subtle">${esc(r.topic)}</span>
+      </div>
+      <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="resource-title">
+        ${esc(r.title)} <span class="material-symbols-outlined" style="font-size:0.875rem;vertical-align:middle">open_in_new</span>
+      </a>
+      ${r.description ? `<p class="resource-desc">${esc(r.description)}</p>` : ''}
+      ${r.memo ? `<p class="resource-memo"><span class="material-symbols-outlined" style="font-size:0.875rem;vertical-align:middle">lightbulb</span> 一言メモ：${esc(r.memo)}</p>` : ''}
+      <span class="resource-url">${esc(r.url)}</span>
+    </article>
+  `).join('');
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function clearAll() {
+  state.category = null; state.topic = null; state.type = null; state.keyword = '';
+  document.getElementById('search').value = '';
+  applyFilters();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

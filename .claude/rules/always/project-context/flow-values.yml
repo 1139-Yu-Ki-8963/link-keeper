@@ -5,12 +5,11 @@ domain_glossary: null
 design_system: null
 adr_dir: null
 
-# ソース構造（旧 source.design_docs / source.portal_dir を平坦化）
+# ソース構造
 design_docs: null
 portal_dir: null
 
-# レビューゲート（未設定 — スキップ。旧 dev-flow-reviewing-* は 2026-07-02 のスキル統合で廃止。
-# orchestrating-dev-flow 側の新レビュー手順確定後に設定する）
+# レビューゲート
 review_gates:
   pre_impl: null
   impl_quality: null
@@ -22,10 +21,9 @@ pr:
   template: null
   required_sections: []
   critical_globs:
-    - "app/**"
-    - "lib/**"
-    - "components/**"
-    - "prisma/**"
+    - "index.html"
+    - "scripts/**"
+    - "docs/**"
 
 # ルート判定の閾値
 classify:
