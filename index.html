@@ -22,7 +22,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg: #09090b;
       --bg-card: #18181b;
       --text: #fafafa;
@@ -289,13 +289,37 @@
     font-size: 1rem;
     vertical-align: middle;
   }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #theme-toggle {
+    border: 1px solid var(--chip-border);
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 9999px;
+    width: 2.25rem;
+    height: 2.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 </head>
 <body>
   <header style="padding: 1.5rem 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem">
-    <div class="container">
-      <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--text)">Link Keeper</h1>
-      <p id="count" style="font-size: 0.875rem; color: var(--text-tertiary)"></p>
+    <div class="container header-inner">
+      <div>
+        <h1 style="font-size: 1.25rem; font-weight: 700; color: var(--text)">Link Keeper</h1>
+        <p id="count" style="font-size: 0.875rem; color: var(--text-tertiary)"></p>
+      </div>
+      <button id="theme-toggle" aria-label="テーマ切り替え" title="ダーク/ライト切り替え">
+        <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+      </button>
     </div>
   </header>
 
@@ -307,27 +331,29 @@
       </div>
 
       <div class="filter-section">
-        <h3>話題</h3>
-        <div class="filter-subgroup">
-          <p class="filter-subgroup-label">Claude Code</p>
-          <div class="chip-group" id="filter-topics-cc"></div>
-        </div>
-        <div class="filter-subgroup">
-          <p class="filter-subgroup-label">記事テーマ</p>
-          <div class="chip-group" id="filter-topics-theme"></div>
-        </div>
+        <h3>種類</h3>
+        <div class="chip-group" id="filter-types"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>対象ツール</h3>
+        <div class="chip-group" id="filter-tools"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>仕組み</h3>
+        <p class="filter-subgroup-label">Claude Code 構成要素</p>
+        <div class="chip-group" id="filter-mechanisms"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3>テーマ</h3>
+        <div class="chip-group" id="filter-themes"></div>
       </div>
 
       <div class="filter-section">
         <h3>キーワード検索</h3>
         <input type="search" id="search" placeholder="タイトル・説明で検索">
-      </div>
-
-      <div class="filter-section">
-        <details>
-          <summary>形式で絞る <span class="material-symbols-outlined">expand_more</span></summary>
-          <div class="chip-group" id="filter-types" style="margin-top: 0.5rem"></div>
-        </details>
       </div>
 
       <div class="filter-section">
@@ -349,61 +375,39 @@ const VOCAB = {
   ],
   "types": [
     "記事",
+    "スライド",
     "リポジトリ",
     "書籍",
     "動画",
     "ツール",
     "テンプレート"
   ],
-  "topics": [
-    {
-      "name": "CLAUDE.md",
-      "group": "Claude Code"
-    },
-    {
-      "name": "Rules",
-      "group": "Claude Code"
-    },
-    {
-      "name": "Skills",
-      "group": "Claude Code"
-    },
-    {
-      "name": "Hooks",
-      "group": "Claude Code"
-    },
-    {
-      "name": "Agents",
-      "group": "Claude Code"
-    },
-    {
-      "name": "Workflow",
-      "group": "Claude Code"
-    },
-    {
-      "name": "MCP",
-      "group": "Claude Code"
-    },
-    {
-      "name": "テスト",
-      "group": "記事テーマ"
-    },
-    {
-      "name": "デザイン",
-      "group": "記事テーマ"
-    },
-    {
-      "name": "チーム・CI",
-      "group": "記事テーマ"
-    },
-    {
-      "name": "コード品質",
-      "group": "記事テーマ"
-    },
-    {
-      "name": "ドキュメント改善",
-      "group": "記事テーマ"
-    }
+  "tools": [
+    "Claude Code",
+    "GitHub",
+    "git",
+    "Playwright",
+    "textlint",
+    "Supabase"
+  ],
+  "mechanisms": [
+    "CLAUDE.md",
+    "Rules",
+    "Skills",
+    "Hooks",
+    "Agents",
+    "Workflow",
+    "MCP"
+  ],
+  "themes": [
+    "テスト",
+    "デザイン",
+    "チーム・CI",
+    "コード品質",
+    "ドキュメント改善",
+    "PRレビュー",
+    "自動化",
+    "開発環境"
   ]
 };
 
@@ -415,7 +419,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": []
   },
   {
     "title": "Claude Codeの失敗をチームルールに昇格させる仕組み",
@@ -424,7 +434,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Rules"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Rules"
+    ],
+    "themes": [
+      "チーム・CI"
+    ]
   },
   {
     "title": "DB・ドメインは分離、Claude設定は共通化 ── git worktreeで並列開発環境をセットアップする",
@@ -433,7 +451,16 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "CLAUDE.md"
+    "tools": [
+      "Claude Code",
+      "git"
+    ],
+    "mechanisms": [
+      "CLAUDE.md"
+    ],
+    "themes": [
+      "開発環境"
+    ]
   },
   {
     "title": "ルール準拠を自動チェックする（後編）— Claude Codeに『オレたち流』を守らせる",
@@ -442,7 +469,16 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Hooks"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Hooks",
+      "Rules"
+    ],
+    "themes": [
+      "コード品質"
+    ]
   },
   {
     "title": "Claude Codeで始めるコード品質の見える化",
@@ -451,7 +487,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Workflow"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Workflow"
+    ],
+    "themes": [
+      "コード品質"
+    ]
   },
   {
     "title": "Claude Code Skills のアンチパターン — 「なぜ Skills か」から考え直す設計の落とし穴",
@@ -460,7 +504,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": []
   },
   {
     "title": "AI時代のE2Eテスト、PlaywrightとVibiumをどう使い分けるか",
@@ -469,7 +519,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "テスト"
+    "tools": [
+      "Playwright"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "テスト"
+    ]
   },
   {
     "title": "スペック文書を「読みたくなるHTML」に変換するClaude Codeスキルを作った話（スキル本文付き）",
@@ -478,7 +534,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "ドキュメント改善"
+    ]
   },
   {
     "title": "Claude Agents！機能が多い！でもここだけ抑えたら便利に使える！",
@@ -487,7 +551,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Agents"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Agents"
+    ],
+    "themes": []
   },
   {
     "title": "Claude Codeのスキルが毎日勝手に改善されていく仕組みを作った",
@@ -496,7 +566,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "自動化"
+    ]
   },
   {
     "title": "実践フルAIコーディング",
@@ -505,7 +583,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Workflow"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Workflow"
+    ],
+    "themes": []
   },
   {
     "title": "AI開発の現実解はレベル7やで ― Agentic Engineering 8レベルでチームの立ち位置を測る",
@@ -514,7 +598,11 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "記事",
-    "topic": "チーム・CI"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "チーム・CI"
+    ]
   },
   {
     "title": "E2Eテストのカバレッジはどう定義する？「全量」をチームの合意で決めるための考え方",
@@ -523,7 +611,11 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "記事",
-    "topic": "テスト"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "テスト"
+    ]
   },
   {
     "title": "Claude CodeでPRレビューを自動化する設計と実装 ── 「AIレビューだけでマージ」を実現するまで",
@@ -532,7 +624,17 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Workflow"
+    "tools": [
+      "Claude Code",
+      "GitHub"
+    ],
+    "mechanisms": [
+      "Workflow"
+    ],
+    "themes": [
+      "PRレビュー",
+      "自動化"
+    ]
   },
   {
     "title": "全PRの83%をAIレビューだけでマージできるようにした",
@@ -541,7 +643,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "チーム・CI"
+    "tools": [
+      "Claude Code",
+      "GitHub"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "PRレビュー",
+      "チーム・CI"
+    ]
   },
   {
     "title": "深夜のE2Eテスト失敗をClaude Codeが自動修正してPRを作る仕組みの構築",
@@ -550,7 +660,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "テスト"
+    "tools": [
+      "Claude Code",
+      "GitHub"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "テスト",
+      "自動化"
+    ]
   },
   {
     "title": "PlaywrightのCIが80分→35分に：実行時間ベースのバランスドシャーディングを自作した話",
@@ -559,7 +677,14 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "記事",
-    "topic": "テスト"
+    "tools": [
+      "Playwright"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "テスト",
+      "チーム・CI"
+    ]
   },
   {
     "title": "Claude Code Skills 共有管理 — 4つのAIツールを1リポジトリで統一する方法",
@@ -568,7 +693,15 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "開発環境"
+    ]
   },
   {
     "title": "Claude CodeからPull Requestのレビュー操作を便利に行うClaude Skillsを作った",
@@ -577,7 +710,16 @@ const RESOURCES = [
     "memo": "PRレビューのインラインコメントを正しい行へ付けるには、diff取得時に行番号を明示表示する手法が鍵",
     "category": "情報",
     "type": "記事",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code",
+      "GitHub"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "PRレビュー"
+    ]
   },
   {
     "title": "Claude Codeの使用率がステータスラインに表示できるようになったので表示用のスクリプトを作った話",
@@ -586,7 +728,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "CLAUDE.md"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "開発環境"
+    ]
   },
   {
     "title": "design.md",
@@ -595,7 +743,11 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "リポジトリ",
-    "topic": "デザイン"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "デザイン"
+    ]
   },
   {
     "title": "textlint-rule-preset-ja-technical-writing",
@@ -604,7 +756,13 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "リポジトリ",
-    "topic": "ドキュメント改善"
+    "tools": [
+      "textlint"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善"
+    ]
   },
   {
     "title": "textlint-rule-preset-ai-writing",
@@ -613,7 +771,13 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "リポジトリ",
-    "topic": "ドキュメント改善"
+    "tools": [
+      "textlint"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善"
+    ]
   },
   {
     "title": "supabase/agent-skills",
@@ -622,7 +786,14 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "リポジトリ",
-    "topic": "Agents"
+    "tools": [
+      "Supabase"
+    ],
+    "mechanisms": [
+      "Skills",
+      "Agents"
+    ],
+    "themes": []
   },
   {
     "title": "awesome-design-md-jp",
@@ -631,7 +802,11 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "リポジトリ",
-    "topic": "デザイン"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "デザイン"
+    ]
   },
   {
     "title": "mizchi/skills",
@@ -640,7 +815,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "リポジトリ",
-    "topic": "Skills"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": []
   },
   {
     "title": "Material Symbols and Icons - Google Fonts",
@@ -649,7 +830,11 @@ const RESOURCES = [
     "memo": "Googleが提供するマテリアルデザインのアイコンフォントライブラリ。SVG・PNG・フォント形式でダウンロードでき、Webアプリや資料のアイコン選定に使える。",
     "category": "知識",
     "type": "ツール",
-    "topic": "デザイン"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "デザイン"
+    ]
   },
   {
     "title": "日本語技術文書の文章規範",
@@ -658,7 +843,11 @@ const RESOURCES = [
     "memo": "",
     "category": "知識",
     "type": "記事",
-    "topic": "ドキュメント改善"
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善"
+    ]
   },
   {
     "title": "入門から実践 -「ループエンジニアリング」",
@@ -667,7 +856,13 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Workflow"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Workflow"
+    ],
+    "themes": []
   },
   {
     "title": "もうプロンプトを書くな──「Loop Engineering」という新しいパラダイムの正体",
@@ -676,12 +871,43 @@ const RESOURCES = [
     "memo": "",
     "category": "情報",
     "type": "記事",
-    "topic": "Workflow"
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Workflow"
+    ],
+    "themes": []
   }
 ];
 /*CATALOG-DATA-END*/
 
-const state = { category: null, topic: null, type: null, keyword: '' };
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.dataset.theme = saved;
+  }
+})();
+
+function currentTheme() {
+  const t = document.documentElement.dataset.theme;
+  if (t === 'dark' || t === 'light') return t;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function updateThemeIcon() {
+  document.getElementById('theme-icon').textContent =
+    currentTheme() === 'dark' ? 'light_mode' : 'dark_mode';
+}
+
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('theme', next);
+  updateThemeIcon();
+}
+
+const state = { category: null, type: null, tool: null, mechanism: null, theme: null, keyword: '' };
 
 function init() {
   renderFilters();
@@ -690,6 +916,8 @@ function init() {
     state.keyword = e.target.value;
     applyFilters();
   });
+  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+  updateThemeIcon();
 }
 
 function renderFilters() {
@@ -701,21 +929,36 @@ function renderFilters() {
     catContainer.appendChild(btn);
   });
 
-  // 話題チップ（2グループ）
-  const ccContainer = document.getElementById('filter-topics-cc');
-  const themeContainer = document.getElementById('filter-topics-theme');
-  VOCAB.topics.forEach(t => {
-    const btn = createChip(t.name);
-    btn.onclick = () => { state.topic = state.topic === t.name ? null : t.name; applyFilters(); updateChips(); };
-    (t.group === 'Claude Code' ? ccContainer : themeContainer).appendChild(btn);
-  });
-
   // 種類チップ
   const typeContainer = document.getElementById('filter-types');
   VOCAB.types.forEach(t => {
     const btn = createChip(t);
     btn.onclick = () => { state.type = state.type === t ? null : t; applyFilters(); updateChips(); };
     typeContainer.appendChild(btn);
+  });
+
+  // 対象ツールチップ
+  const toolContainer = document.getElementById('filter-tools');
+  VOCAB.tools.forEach(t => {
+    const btn = createChip(t);
+    btn.onclick = () => { state.tool = state.tool === t ? null : t; applyFilters(); updateChips(); };
+    toolContainer.appendChild(btn);
+  });
+
+  // 仕組みチップ
+  const mechanismContainer = document.getElementById('filter-mechanisms');
+  VOCAB.mechanisms.forEach(m => {
+    const btn = createChip(m);
+    btn.onclick = () => { state.mechanism = state.mechanism === m ? null : m; applyFilters(); updateChips(); };
+    mechanismContainer.appendChild(btn);
+  });
+
+  // テーマチップ
+  const themeContainer = document.getElementById('filter-themes');
+  VOCAB.themes.forEach(t => {
+    const btn = createChip(t);
+    btn.onclick = () => { state.theme = state.theme === t ? null : t; applyFilters(); updateChips(); };
+    themeContainer.appendChild(btn);
   });
 }
 
@@ -731,21 +974,29 @@ function updateChips() {
   document.querySelectorAll('#filter-categories .chip').forEach(el => {
     el.classList.toggle('active', el.dataset.value === state.category);
   });
-  document.querySelectorAll('#filter-topics-cc .chip, #filter-topics-theme .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.topic);
-  });
   document.querySelectorAll('#filter-types .chip').forEach(el => {
     el.classList.toggle('active', el.dataset.value === state.type);
   });
+  document.querySelectorAll('#filter-tools .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.tool);
+  });
+  document.querySelectorAll('#filter-mechanisms .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.mechanism);
+  });
+  document.querySelectorAll('#filter-themes .chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.value === state.theme);
+  });
   const clearBtn = document.getElementById('clear-filters');
-  clearBtn.style.display = (state.category || state.topic || state.type || state.keyword) ? '' : 'none';
+  clearBtn.style.display = (state.category || state.type || state.tool || state.mechanism || state.theme || state.keyword) ? '' : 'none';
 }
 
 function applyFilters() {
   const filtered = RESOURCES.filter(r => {
     if (state.category && r.category !== state.category) return false;
-    if (state.topic && r.topic !== state.topic) return false;
     if (state.type && r.type !== state.type) return false;
+    if (state.tool && !r.tools.includes(state.tool)) return false;
+    if (state.mechanism && !r.mechanisms.includes(state.mechanism)) return false;
+    if (state.theme && !r.themes.includes(state.theme)) return false;
     if (state.keyword) {
       const kw = state.keyword.toLowerCase();
       if (!r.title.toLowerCase().includes(kw) && !(r.description || '').toLowerCase().includes(kw)) return false;
@@ -768,7 +1019,9 @@ function renderResources(list) {
       <div class="tags">
         <span class="tag-outlined">${esc(r.category)}</span>
         <span class="tag-filled">${esc(r.type)}</span>
-        <span class="tag-subtle">${esc(r.topic)}</span>
+        ${(r.tools || []).map(t => `<span class="tag-subtle">${esc(t)}</span>`).join('')}
+        ${(r.mechanisms || []).map(m => `<span class="tag-subtle">${esc(m)}</span>`).join('')}
+        ${(r.themes || []).map(t => `<span class="tag-subtle">${esc(t)}</span>`).join('')}
       </div>
       <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="resource-title">
         ${esc(r.title)} <span class="material-symbols-outlined" style="font-size:0.875rem;vertical-align:middle">open_in_new</span>
@@ -783,7 +1036,7 @@ function renderResources(list) {
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 function clearAll() {
-  state.category = null; state.topic = null; state.type = null; state.keyword = '';
+  state.category = null; state.type = null; state.tool = null; state.mechanism = null; state.theme = null; state.keyword = '';
   document.getElementById('search').value = '';
   applyFilters();
 }

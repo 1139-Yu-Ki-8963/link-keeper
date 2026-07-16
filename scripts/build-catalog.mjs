@@ -28,12 +28,24 @@ function isSeparatorRow(line) {
   return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(line.trim());
 }
 
+/**
+ * カンマ区切りの複数値セルを配列にパースする。空セル・未定義は空配列。
+ */
+function parseMultiValue(cell) {
+  return (cell ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function parseCatalog(markdown) {
   const lines = markdown.split(/\r?\n/);
 
   const categories = [];
   const types = [];
-  const topics = [];
+  const tools = [];
+  const mechanisms = [];
+  const themes = [];
   const resources = [];
 
   let section = null;
@@ -52,8 +64,18 @@ function parseCatalog(markdown) {
       headerSeen = false;
       continue;
     }
-    if (trimmed.startsWith("### 話題")) {
-      section = "topics";
+    if (trimmed.startsWith("### 対象ツール")) {
+      section = "tools";
+      headerSeen = false;
+      continue;
+    }
+    if (trimmed.startsWith("### 仕組み")) {
+      section = "mechanisms";
+      headerSeen = false;
+      continue;
+    }
+    if (trimmed.startsWith("### テーマ")) {
+      section = "themes";
       headerSeen = false;
       continue;
     }
@@ -64,14 +86,7 @@ function parseCatalog(markdown) {
     }
     if (trimmed.startsWith("#")) {
       // 他の見出しに入ったらセクションを離脱する
-      if (
-        !trimmed.startsWith("### カテゴリ") &&
-        !trimmed.startsWith("### 種類") &&
-        !trimmed.startsWith("### 話題") &&
-        !trimmed.startsWith("## リソース一覧")
-      ) {
-        section = null;
-      }
+      section = null;
       continue;
     }
 
@@ -97,11 +112,18 @@ function parseCatalog(markdown) {
     } else if (section === "types") {
       const [name] = cells;
       if (name) types.push(name);
-    } else if (section === "topics") {
-      const [name, group] = cells;
-      if (name) topics.push({ name, group: group ?? "" });
+    } else if (section === "tools") {
+      const [name] = cells;
+      if (name) tools.push(name);
+    } else if (section === "mechanisms") {
+      const [name] = cells;
+      if (name) mechanisms.push(name);
+    } else if (section === "themes") {
+      const [name] = cells;
+      if (name) themes.push(name);
     } else if (section === "resources") {
-      const [title, url, description, memo, category, type, topic] = cells;
+      const [title, url, description, memo, category, type, tool, mechanism, theme] =
+        cells;
       if (title) {
         resources.push({
           title,
@@ -110,20 +132,23 @@ function parseCatalog(markdown) {
           memo: memo ?? "",
           category: category ?? "",
           type: type ?? "",
-          topic: topic ?? "",
+          tools: parseMultiValue(tool),
+          mechanisms: parseMultiValue(mechanism),
+          themes: parseMultiValue(theme),
         });
       }
     }
   }
 
-  return { categories, types, topics, resources };
+  return { categories, types, tools, mechanisms, themes, resources };
 }
 
 function main() {
   const markdown = readFileSync(catalogPath, "utf-8");
-  const { categories, types, topics, resources } = parseCatalog(markdown);
+  const { categories, types, tools, mechanisms, themes, resources } =
+    parseCatalog(markdown);
 
-  const vocab = { categories, types, topics };
+  const vocab = { categories, types, tools, mechanisms, themes };
 
   const dataBlock = `const VOCAB = ${JSON.stringify(vocab, null, 2)};\n\nconst RESOURCES = ${JSON.stringify(resources, null, 2)};`;
 
