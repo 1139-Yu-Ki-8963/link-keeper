@@ -2,36 +2,29 @@
 
 ## 概要
 
-残しておきたい記事・書籍・動画・ツールなどのリンクを集約し、種類・タグ・シーンで絞り込んで管理する個人ナレッジ管理サイト。画面からの追加・編集・削除（CRUD）に対応する。
+残しておきたい記事・書籍・動画・ツールなどのリンクを集約し、種類・タグ・シーンで絞り込んで管理する個人ナレッジ管理サイト。GitHub Pages で公開する静的 HTML 構成。
 
 ## 技術スタック
 
-- フレームワーク: Next.js 16（App Router）+ React 19
-- 言語: TypeScript（strict）
-- スタイル: Tailwind CSS v4（モノトーン基調）
-- DB: SQLite + Prisma 7（driver adapter: better-sqlite3）
-- CRUD: Server Actions
-- Lint/Format: Biome
+- 配信: GitHub Pages（静的 HTML）
+- データ源: Markdown 表（docs/リソース蓄積簿.md）
+- ビルド: Node.js スクリプト（scripts/build-catalog.mjs）
+- フロントエンド: 素の HTML + CSS + JavaScript（フレームワークなし）
+- テーマ: ダーク/ライト両対応（CSS カスタムプロパティ）
 
-外部サービス・認証は使わず、ローカルの単一ファイル `dev.db` で完結する。
+外部サービス・認証・DB なし。ローカルの `npm run build` で蓄積簿データを index.html に埋め込み、push で GitHub Pages に反映。
 
 ## 設定索引
 
 - 実装フロー設定: `.claude/rules/always/project-context/flow-values.yml`
 - ルート直下許可リスト: 本ファイル末尾「## ルート直下許可ディレクトリ」節
-- 命名規約の上書き（任意・置けば効く）: `.claude/rules/always/naming/commit-branch/naming-values.txt`
-- 文章置き換え辞書（任意・置けば効く）: `.claude/rules/always/review-checklist/text-dictionary/prh.yml`
-- レビュー観点（任意・置けば効く）: `.claude/rules/scoped/review-checklist/<domain>/<name>/rule.md`
 
 ## ルート直下許可ディレクトリ
 
 | ディレクトリ名 | 用途 |
 |---|---|
-| app | Next.js App Router |
-| components | React コンポーネント |
-| lib | ユーティリティ・共通ロジック |
-| prisma | Prisma スキーマ・マイグレーション |
-| public | 静的アセット |
+| docs | リソース蓄積簿（データの正本） |
+| scripts | ビルドスクリプト |
 
 ## サブディレクトリ許可リスト
 

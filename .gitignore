@@ -47,3 +47,8 @@ next-env.d.ts
 /prisma/dev.db
 .playwright-mcp/
 .port-slot
+.flow-progress.json
+.claude/markers/
+dev.db
+dev.db-journal
+node_modules/
