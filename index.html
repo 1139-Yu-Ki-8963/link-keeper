@@ -308,6 +308,49 @@
     align-items: center;
     justify-content: center;
   }
+
+  .filter-toggle {
+    display: none;
+  }
+
+  .filter-badge {
+    background: var(--chip-active-bg);
+    color: var(--chip-active-text);
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    .filter-toggle {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .filter-toggle-chevron {
+      margin-left: auto;
+      transition: transform 0.2s;
+    }
+
+    .filter-body {
+      display: none;
+    }
+
+    .filter-body.open {
+      display: block;
+    }
+  }
 </style>
 </head>
 <body>
@@ -325,39 +368,47 @@
 
   <div class="layout">
     <aside class="sidebar">
-      <div class="filter-section">
-        <h3>大カテゴリ</h3>
-        <div class="chip-group" id="filter-categories"></div>
-      </div>
+      <button id="filter-toggle" class="filter-toggle" aria-expanded="false" aria-controls="filter-body">
+        <span class="material-symbols-outlined">filter_list</span>
+        絞り込み
+        <span id="filter-badge" class="filter-badge" hidden>0</span>
+        <span class="material-symbols-outlined filter-toggle-chevron">expand_more</span>
+      </button>
+      <div id="filter-body" class="filter-body">
+        <div class="filter-section">
+          <h3>大カテゴリ</h3>
+          <div class="chip-group" id="filter-categories"></div>
+        </div>
 
-      <div class="filter-section">
-        <h3>種類</h3>
-        <div class="chip-group" id="filter-types"></div>
-      </div>
+        <div class="filter-section">
+          <h3>種類</h3>
+          <div class="chip-group" id="filter-types"></div>
+        </div>
 
-      <div class="filter-section">
-        <h3>対象ツール</h3>
-        <div class="chip-group" id="filter-tools"></div>
-      </div>
+        <div class="filter-section">
+          <h3>対象ツール</h3>
+          <div class="chip-group" id="filter-tools"></div>
+        </div>
 
-      <div class="filter-section">
-        <h3>仕組み</h3>
-        <p class="filter-subgroup-label">Claude Code 構成要素</p>
-        <div class="chip-group" id="filter-mechanisms"></div>
-      </div>
+        <div class="filter-section">
+          <h3>仕組み</h3>
+          <p class="filter-subgroup-label">Claude Code 構成要素</p>
+          <div class="chip-group" id="filter-mechanisms"></div>
+        </div>
 
-      <div class="filter-section">
-        <h3>テーマ</h3>
-        <div class="chip-group" id="filter-themes"></div>
-      </div>
+        <div class="filter-section">
+          <h3>テーマ</h3>
+          <div class="chip-group" id="filter-themes"></div>
+        </div>
 
-      <div class="filter-section">
-        <h3>キーワード検索</h3>
-        <input type="search" id="search" placeholder="タイトル・説明で検索">
-      </div>
+        <div class="filter-section">
+          <h3>キーワード検索</h3>
+          <input type="search" id="search" placeholder="タイトル・説明で検索">
+        </div>
 
-      <div class="filter-section">
-        <button id="clear-filters" onclick="clearAll()">すべてクリア</button>
+        <div class="filter-section">
+          <button id="clear-filters" onclick="clearAll()">すべてクリア</button>
+        </div>
       </div>
     </aside>
 
@@ -407,7 +458,12 @@ const VOCAB = {
     "ドキュメント改善",
     "PRレビュー",
     "自動化",
-    "開発環境"
+    "開発環境",
+    "システム設計",
+    "システム思考",
+    "コンテキストエンジニアリング",
+    "ナレッジ管理",
+    "プロジェクト管理"
   ]
 };
 
@@ -878,6 +934,382 @@ const RESOURCES = [
       "Workflow"
     ],
     "themes": []
+  },
+  {
+    "title": "SystemDesign InterviewCat",
+    "url": "https://interviewcat.dev/p/systemdesign-interviewcat",
+    "description": "システム設計の面接対策教材。通信プロトコル・スケーラビリティ・キャッシュなどの基礎から、Twitter・Dropbox などの実例設計までを扱う大規模教材。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "システム設計"
+    ]
+  },
+  {
+    "title": "システムを作る人がまず理解すべきシステム思考の基礎",
+    "url": "https://syu-m-5151.hatenablog.com/entry/2025/10/01/203633",
+    "description": "個別最適ではなく全体の相互作用を捉えるシステム思考の解説。氷山モデルやAI時代の非対称性（生産速度と理解速度の乖離など）を扱う。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "システム思考"
+    ]
+  },
+  {
+    "title": "伊藤淳一が考える「コードレビューの目的と進め方」",
+    "url": "https://levtech.jp/media/article/column/detail_818/",
+    "description": "レビュー初心者向けにコードレビューの目的（可読性・保守性・堅牢性の担保）と、PR規模確認から承認までの進め方を解説。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "PRレビュー"
+    ]
+  },
+  {
+    "title": "Yadorigi（ヤドリギ）ローカル完結型AIブックマーク整理ツール",
+    "url": "https://zenn.dev/kakenami/articles/yadorigi-release",
+    "description": "X（旧Twitter）のブックマーク・いいねをローカルで整理するOSSツールの紹介。4段階のAIパイプラインで自動タグ付け・分類し、暗号化SQLiteに保存する。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "ナレッジ管理",
+      "自動化"
+    ]
+  },
+  {
+    "title": "生成AI時代のドキュメント基盤",
+    "url": "https://zenn.dev/nuits_jp/articles/2026-03-19-genai-documentation-foundation",
+    "description": "7年間の運用経験に基づくドキュメント基盤構築論。MkDocsとAzure Blob Storageを用い、作成・版管理・配布の持続可能な仕組みを解説する。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善"
+    ]
+  },
+  {
+    "title": "PlaywrightのテストをDocker ImageとProjects機能で安定化と高速化",
+    "url": "https://tech.newmo.me/entry/playwright-ci-optimization",
+    "description": "公式Docker Image採用で環境起因の不安定さを解消し、projects機能とシャーディングでCI時間を平均18%（小規模PRで42%）削減した事例。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Playwright"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "テスト",
+      "チーム・CI",
+      "自動化"
+    ]
+  },
+  {
+    "title": "【50万バズ】Nano Banana実用【プロンプト不要？】手書きの指示だけでマニュアル完成！",
+    "url": "https://note.com/on_consul/n/nc2e8299f08e6",
+    "description": "Googleの画像生成AI「Nano Banana Pro」に手書きの指示（赤ペンの丸・矢印）を渡すだけできれいなマニュアル図版を自動生成する活用法の紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善",
+      "自動化"
+    ]
+  },
+  {
+    "title": "E2Eテストを民主化したら、朝には失敗の分析も再実行も修正PRも終わっていた",
+    "url": "https://zenn.dev/lincwell_inc/articles/e8e288ee35f5b4",
+    "description": "QAチーム一元管理だったE2Eテスト運用を各開発チームに分散し、AIによる失敗分析・自動再実行・修正PR生成を導入した事例。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Playwright",
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "テスト",
+      "チーム・CI",
+      "自動化"
+    ]
+  },
+  {
+    "title": "AIが\"思った通りに動かない\"理由とコンテキストエンジニアリング",
+    "url": "https://zenn.dev/knowledgework/articles/learning-context-engineering",
+    "description": "AIの不適切な動作の主因を情報設計の問題と捉え、情報を整理・最適化して渡す「コンテキストエンジニアリング」の考え方を物流に例えて解説。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "コンテキストエンジニアリング"
+    ]
+  },
+  {
+    "title": "2026年6月現在のClaude Code開発フロー",
+    "url": "https://zenn.dev/arm_techblog/articles/7712cde19988c8",
+    "description": "Planモードをデフォルトにした計画立て→実装→自動品質ゲート→動作確認のフローと、Stop Hookによる5フェーズ自動実行の仕組みを解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Hooks",
+      "Workflow"
+    ],
+    "themes": [
+      "開発環境",
+      "自動化"
+    ]
+  },
+  {
+    "title": "Claude Codeのために「臭うコード検出器」を開発し、Hooksに設定してみた話",
+    "url": "https://zenn.dev/manalink_dev/articles/coding-agent-with-syntax-tree-analyze",
+    "description": "構文木解析でコードの問題を検出し、明確なNGはCIで自動検出、見直し推奨パターンはStop HookでClaude Code自身に自己修正させる二段構えの仕組み。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Hooks"
+    ],
+    "themes": [
+      "コード品質",
+      "自動化"
+    ]
+  },
+  {
+    "title": "Claude Codeに「7人の意地悪なQA」を仕込んでテストケースの観点漏れを潰した",
+    "url": "https://zenn.dev/nexta_/articles/be13a2395a5d2a",
+    "description": "7種のQAペルソナ（新人・ベテラン・悪意ある操作者など）をClaude Codeのカスタムスキルとして実装し、テストケース設計の観点漏れを補完した事例。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "テスト"
+    ]
+  },
+  {
+    "title": "DESIGN.md + 壊れたら気づくハーネス - AI向けデザインシステムを「維持できる仕組み」にした記録",
+    "url": "https://zenn.dev/tsubotax/articles/7f0d3693f70e2f",
+    "description": "AI向けデザインシステム「melta UI」を単一ファイルから3層構造（設計原則・JSON仕様・自動検証）へ移行し、長期運用でも品質を維持する実装パターンを解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "デザイン",
+      "ドキュメント改善"
+    ]
+  },
+  {
+    "title": "35個のバグは、1回のレビューでは出なかった。11回見直して、最後に出力側からいちばん怖いのが出た話",
+    "url": "https://zenn.dev/rapls/articles/89024b21049899",
+    "description": "AIチャットボットプラグインのセキュリティレビューで35件のバグを発見した記録。入力側対策に偏り、出力側（モデル出力を無検証でHTML描画）の脅威を見逃していた点を指摘。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "コード品質",
+      "PRレビュー"
+    ]
+  },
+  {
+    "title": "5 Agent Skills I Use Every Day",
+    "url": "https://www.aihero.dev/5-agent-skills-i-use-every-day",
+    "description": "Claude Codeの品質を上げるため著者が日常使う5つのワークフロー（アイデア掘り下げ・要件書作成・タスク分割・TDD・アーキテクチャ改善）を紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "テスト",
+      "コード品質"
+    ]
+  },
+  {
+    "title": "AIが大量にアウトプットしてくるので認知負荷を下げるSkillを作った",
+    "url": "https://zenn.dev/hataluck/articles/0752919b305a9f",
+    "description": "YAMLとHTMLで「意味（core.yaml）」と「見せ方（view.yaml）」を分離し、AI生成物の理解負荷を下げるClaude Codeスキルを作成した記事。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Skills"
+    ],
+    "themes": [
+      "ドキュメント改善"
+    ]
+  },
+  {
+    "title": "Claude Codeでアカウントを切り替えたい",
+    "url": "https://zenn.dev/mayuyu/articles/8cc4c5f35b41d9",
+    "description": "Macで環境変数CLAUDE_CONFIG_DIRとシェルエイリアスを使い、同一PC上で複数のClaudeアカウントを切り替える設定方法を解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "開発環境"
+    ]
+  },
+  {
+    "title": "AI時代のナレッジ管理手法 - Googleの「OKF」を解説",
+    "url": "https://zenn.dev/knowledgesense/articles/14a874a9f423bb",
+    "description": "Google Cloud提案の「Open Knowledge Format」を解説。Markdown冒頭にYAMLメタデータを付与し、AIが検索・活用しやすい社内知見管理フォーマットを提案する内容。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "ドキュメント改善",
+      "ナレッジ管理"
+    ]
+  },
+  {
+    "title": "DESIGN.mdの作り方｜試行錯誤の記録",
+    "url": "https://note.com/kayo_design/n/nb1cbcbd498c0",
+    "description": "デザイナーがFigmaとコードの乖離・AIへの文脈伝達課題を解決するため、DESIGN.md/CLAUDE.md整備からGitHub公開まで5フェーズでドキュメント化した実践記。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "CLAUDE.md"
+    ],
+    "themes": [
+      "デザイン",
+      "ドキュメント改善"
+    ]
+  },
+  {
+    "title": "Claude Code から Discord を触りたい！Bot作成からmcp-discordでMCP連携するまで",
+    "url": "https://qiita.com/inukai-masanori/items/80c62c9ecc5bca538a35",
+    "description": "Discord Botを作成し、mcp-discordライブラリを用いてClaude CodeからDiscordのメッセージを取得できるようMCP連携する手順を解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "MCP"
+    ],
+    "themes": [
+      "自動化",
+      "開発環境"
+    ]
+  },
+  {
+    "title": "WBSという至高ツールで、このAI時代をサバイブする",
+    "url": "https://zenn.dev/piguolabo/articles/99b5b30a028f80",
+    "description": "WBS運用の重い更新負担を、単一HTMLで動く自動計算ツール「single-file-wbs」で解消し、Claude CodeなどのAIに依存関係組み替えを委ねる構想を紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "プロジェクト管理",
+      "自動化"
+    ]
+  },
+  {
+    "title": "Claude Code Auto Mode入門 — 安全な自律コーディングを実現する権限制御の全貌",
+    "url": "https://qiita.com/kai_kou/items/2e425056e9886d76d679",
+    "description": "Anthropicが追加した「Auto Mode」を解説。AIクラシファイアがツール呼び出しの安全性を自動判定し、承認ダイアログの頻度とセキュリティのバランスを取る仕組みを紹介。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [],
+    "themes": [
+      "自動化",
+      "開発環境"
+    ]
+  },
+  {
+    "title": "Claude Code × Codex 共存セットアップ — ルール・Skills・hooksを一元管理する",
+    "url": "https://qiita.com/kirozero/items/aec53be56a5427475969",
+    "description": "Claude CodeとOpenAI Codexを同一プロジェクトで併用する際、AGENTS.mdや共有スキル置き場を使い「共通正本＋薄いアダプタ」でルール・スキル・hooksを重複なく管理する方法を解説。",
+    "memo": "",
+    "category": "情報",
+    "type": "記事",
+    "tools": [
+      "Claude Code"
+    ],
+    "mechanisms": [
+      "Rules",
+      "Skills",
+      "Hooks"
+    ],
+    "themes": [
+      "開発環境"
+    ]
+  },
+  {
+    "title": "デロイトが国に納品したスライド351枚、全部数えたらパターンは7つだけだった",
+    "url": "https://note.com/uchita_success/n/n030ad63765d3",
+    "description": "経産省委託のデロイト報告書351ページを分析し、使われるスライドパターンが7種類に限定されることを発見。各型の使い方とAI再現用プロンプトも紹介。",
+    "memo": "",
+    "category": "知識",
+    "type": "記事",
+    "tools": [],
+    "mechanisms": [],
+    "themes": [
+      "デザイン"
+    ]
   }
 ];
 /*CATALOG-DATA-END*/
@@ -917,7 +1349,34 @@ function init() {
     applyFilters();
   });
   document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+  document.getElementById('filter-toggle').addEventListener('click', toggleFilterPanel);
   updateThemeIcon();
+}
+
+function toggleFilterPanel() {
+  const body = document.getElementById('filter-body');
+  const btn = document.getElementById('filter-toggle');
+  const open = body.classList.toggle('open');
+  btn.setAttribute('aria-expanded', String(open));
+  btn.querySelector('.filter-toggle-chevron').style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function activeFilterCount() {
+  let n = 0;
+  if (state.category) n++;
+  if (state.type) n++;
+  if (state.tool) n++;
+  if (state.mechanism) n++;
+  if (state.theme) n++;
+  if (state.keyword) n++;
+  return n;
+}
+
+function updateFilterBadge() {
+  const badge = document.getElementById('filter-badge');
+  const n = activeFilterCount();
+  badge.textContent = n;
+  badge.hidden = n === 0;
 }
 
 function renderFilters() {
@@ -1006,6 +1465,7 @@ function applyFilters() {
   renderResources(filtered);
   document.getElementById('count').textContent = filtered.length + ' 件';
   updateChips();
+  updateFilterBadge();
 }
 
 function renderResources(list) {
