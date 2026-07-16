@@ -10,11 +10,7 @@ design_docs: null
 portal_dir: null
 
 # レビューゲート
-review_gates:
-  pre_impl: null
-  impl_quality: null
-  pre_push: null
-  e2e: null
+review_gates: {}
 
 # PR 設定
 pr:
