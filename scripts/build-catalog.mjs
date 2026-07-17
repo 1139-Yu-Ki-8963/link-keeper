@@ -10,6 +10,12 @@ const indexPath = resolve(rootDir, "index.html");
 const START_MARKER = "/*CATALOG-DATA-START*/";
 const END_MARKER = "/*CATALOG-DATA-END*/";
 
+// 蓄積簿への登録日列の新設に伴う移行日。この日付と一致するエントリは
+// 実登録日が不明な既存データ（一括設定）のため、鮮度判定の対象外とする。
+const MIGRATION_DATE = "2026-07-17";
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
  * テーブル行（`| a | b | ... |`）をセル配列にパースする。
  * ヘッダ行・セパレータ行（`---` を含む）は呼び出し側でスキップ済みの前提。
@@ -122,8 +128,18 @@ function parseCatalog(markdown) {
       const [name] = cells;
       if (name) themes.push(name);
     } else if (section === "resources") {
-      const [title, url, description, memo, category, type, tool, mechanism, theme] =
-        cells;
+      const [
+        title,
+        url,
+        description,
+        memo,
+        category,
+        type,
+        tool,
+        mechanism,
+        theme,
+        date,
+      ] = cells;
       if (title) {
         resources.push({
           title,
@@ -135,6 +151,8 @@ function parseCatalog(markdown) {
           tools: parseMultiValue(tool),
           mechanisms: parseMultiValue(mechanism),
           themes: parseMultiValue(theme),
+          date: date ?? "",
+          isMigrated: (date ?? "") === MIGRATION_DATE,
         });
       }
     }
@@ -143,10 +161,79 @@ function parseCatalog(markdown) {
   return { categories, types, tools, mechanisms, themes, resources };
 }
 
+/**
+ * 蓄積簿から取り込んだデータを検証する。違反があれば全件をエラーメッセージとして
+ * 収集し、1件でもあれば例外を投げてビルドを失敗させる（exit 1）。
+ */
+function validateResources({ categories, types, tools, mechanisms, themes, resources }) {
+  const errors = [];
+  const vocabSets = {
+    category: new Set(categories),
+    type: new Set(types),
+    tool: new Set(tools),
+    mechanism: new Set(mechanisms),
+    theme: new Set(themes),
+  };
+  const seenUrls = new Map();
+
+  resources.forEach((r, i) => {
+    const rowLabel = `${i + 1}行目「${r.title || "(タイトル空)"}」`;
+
+    if (!r.title) errors.push(`${rowLabel}: タイトルが空です`);
+    if (!r.url) errors.push(`${rowLabel}: URL が空です`);
+    if (!r.category) errors.push(`${rowLabel}: カテゴリが空です`);
+    if (!r.type) errors.push(`${rowLabel}: 種類が空です`);
+
+    if (r.url) {
+      if (seenUrls.has(r.url)) {
+        errors.push(
+          `${rowLabel}: URL が ${seenUrls.get(r.url)}行目と重複しています（${r.url}）`,
+        );
+      } else {
+        seenUrls.set(r.url, i + 1);
+      }
+    }
+
+    if (r.category && !vocabSets.category.has(r.category)) {
+      errors.push(`${rowLabel}: カテゴリ「${r.category}」は語彙定義外です`);
+    }
+    if (r.type && !vocabSets.type.has(r.type)) {
+      errors.push(`${rowLabel}: 種類「${r.type}」は語彙定義外です`);
+    }
+    for (const t of r.tools) {
+      if (!vocabSets.tool.has(t)) {
+        errors.push(`${rowLabel}: 対象ツール「${t}」は語彙定義外です`);
+      }
+    }
+    for (const m of r.mechanisms) {
+      if (!vocabSets.mechanism.has(m)) {
+        errors.push(`${rowLabel}: 仕組み「${m}」は語彙定義外です`);
+      }
+    }
+    for (const th of r.themes) {
+      if (!vocabSets.theme.has(th)) {
+        errors.push(`${rowLabel}: テーマ「${th}」は語彙定義外です`);
+      }
+    }
+
+    if (!r.date) {
+      errors.push(`${rowLabel}: 登録日が空です`);
+    } else if (!DATE_PATTERN.test(r.date)) {
+      errors.push(`${rowLabel}: 登録日「${r.date}」が YYYY-MM-DD 形式ではありません`);
+    }
+  });
+
+  if (errors.length) {
+    throw new Error(`蓄積簿データの検証に失敗しました:\n- ${errors.join("\n- ")}`);
+  }
+}
+
 function main() {
   const markdown = readFileSync(catalogPath, "utf-8");
   const { categories, types, tools, mechanisms, themes, resources } =
     parseCatalog(markdown);
+
+  validateResources({ categories, types, tools, mechanisms, themes, resources });
 
   const vocab = { categories, types, tools, mechanisms, themes };
 
@@ -171,4 +258,9 @@ function main() {
   console.log(`build 完了: ${resources.length} 件のリソースを埋め込みました`);
 }
 
-main();
+try {
+  main();
+} catch (err) {
+  console.error(err.message);
+  process.exit(1);
+}
