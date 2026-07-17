@@ -4,14 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Link Keeper</title>
+<meta name="description" content="Claude Code・AIエージェント活用の記事・リポジトリ・ツールを蓄積し、絞り込み・検索できるリソースカタログ。">
+<meta property="og:title" content="Link Keeper">
+<meta property="og:description" content="Claude Code・AIエージェント活用の記事・リポジトリ・ツールを蓄積し、絞り込み・検索できるリソースカタログ。">
+<meta property="og:type" content="website">
+<script>
+  (function() {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.dataset.theme = saved;
+    }
+  })();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%97%3C/text%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #fafafa;
     --bg-card: #fff;
     --text: #18181b;
     --text-secondary: #52525b;
-    --text-tertiary: #a1a1aa;
+    --text-tertiary: #71717a;
     --border: #e4e4e7;
     --accent: #2563eb;
     --chip-active-bg: #18181b;
@@ -27,7 +40,7 @@
       --bg-card: #18181b;
       --text: #fafafa;
       --text-secondary: #a1a1aa;
-      --text-tertiary: #71717a;
+      --text-tertiary: #9ca3af;
       --border: #27272a;
       --accent: #60a5fa;
       --chip-active-bg: #fafafa;
@@ -43,7 +56,7 @@
     --bg-card: #fff;
     --text: #18181b;
     --text-secondary: #52525b;
-    --text-tertiary: #a1a1aa;
+    --text-tertiary: #71717a;
     --border: #e4e4e7;
     --accent: #2563eb;
     --chip-active-bg: #18181b;
@@ -58,7 +71,7 @@
     --bg-card: #18181b;
     --text: #fafafa;
     --text-secondary: #a1a1aa;
-    --text-tertiary: #71717a;
+    --text-tertiary: #9ca3af;
     --border: #27272a;
     --accent: #60a5fa;
     --chip-active-bg: #fafafa;
@@ -167,6 +180,12 @@
     border-color: var(--chip-active-bg);
   }
 
+  .chip.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
   .chip-big {
     padding: 0.375rem 1rem;
     font-size: 0.875rem;
@@ -189,19 +208,51 @@
 
   #clear-filters {
     display: none;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
+    align-items: center;
+    gap: 0.25rem;
+    width: auto;
+    padding: 0.375rem 0.75rem;
     border-radius: 0.375rem;
     border: 1px solid var(--border);
     background: var(--bg-card);
     color: var(--text-secondary);
     font-size: 0.8125rem;
     cursor: pointer;
+    margin-bottom: 0.75rem;
+  }
+
+  .and-note {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0 0 0.75rem;
+  }
+
+  .selected-count-badge {
+    background: var(--chip-active-bg);
+    color: var(--chip-active-text);
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.4375rem;
+    font-weight: 700;
+  }
+
+  #resources {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    #resources {
+      grid-template-columns: 1fr;
+    }
   }
 
   .resource-card {
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--bg-card);
   }
 
   .resource-card .tags {
@@ -235,6 +286,29 @@
   .tag-subtle {
     border: 1px solid var(--chip-border);
     color: var(--text-tertiary);
+  }
+
+  .tag-clickable {
+    cursor: pointer;
+    background: none;
+    font: inherit;
+  }
+
+  .tag-clickable:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .freshness-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1875rem;
+    background: var(--memo-bg);
+    color: var(--memo-text);
+    border-radius: 0.25rem;
+    padding: 0.09375rem 0.4375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
   }
 
   .resource-title {
@@ -274,6 +348,18 @@
     word-break: break-all;
   }
 
+  .load-more-btn {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    border: 1px dashed var(--chip-border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
   .material-symbols-outlined {
     font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
     font-size: 1rem;
@@ -299,6 +385,10 @@
   .header-title h1 { font-size: 1.125rem; font-weight: 700; color: var(--text); }
   .header-title p { font-size: 0.75rem; color: var(--text-tertiary); }
 
+  .app-sort-label {
+    margin-left: 0.5rem;
+  }
+
   .header-search {
     position: relative;
     flex: 1;
@@ -323,7 +413,7 @@
     border-radius: 9999px;
     background: var(--bg-card);
     color: var(--text);
-    font-size: 0.875rem;
+    font-size: 1rem;
     outline: none;
   }
 
@@ -334,8 +424,8 @@
     background: var(--bg-card);
     color: var(--text);
     border-radius: 9999px;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -393,14 +483,40 @@
     #theme-toggle { order: 2; margin-left: auto; }
     .header-search { order: 3; flex-basis: 100%; max-width: none; margin-left: 0; }
   }
+
+  /* タップ操作端末（指先操作）ではタップ領域を WCAG 推奨の 44px 以上へ拡大する。
+     デスクトップ（マウス等の高精度ポインタ）の見た目は変えない。 */
+  @media (pointer: coarse) {
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0.5rem 0.875rem;
+    }
+
+    .tag-clickable {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0.375rem 0.75rem;
+    }
+  }
 </style>
 </head>
 <body>
+  <noscript>
+    <p style="margin:0;padding:0.75rem 1.5rem;background:#fef3c7;color:#92400e;font-size:0.875rem;">
+      このカタログは JavaScript を使って一覧の絞り込み・検索を行います。ブラウザで JavaScript を有効にして再度お試しください。
+    </p>
+  </noscript>
   <header class="site-header">
     <div class="container header-inner">
       <div class="header-title">
         <h1>Link Keeper</h1>
-        <p id="count"></p>
+        <p>
+          <span id="count" aria-live="polite"></span>
+          <span class="app-sort-label">並び順: 登録順</span>
+        </p>
       </div>
       <div class="header-search">
         <span class="material-symbols-outlined header-search-icon">search</span>
@@ -421,40 +537,43 @@
         <span class="material-symbols-outlined filter-toggle-chevron">expand_more</span>
       </button>
       <div id="filter-body" class="filter-body">
+        <button id="clear-filters" onclick="clearAll()">
+          <span class="material-symbols-outlined" style="font-size:0.875rem">close</span>
+          すべてクリア
+        </button>
+        <p class="and-note">※各軸は AND 条件で絞り込みます</p>
+
         <div class="filter-section">
-          <h3>大カテゴリ</h3>
+          <h3>大カテゴリ <span class="selected-count-badge" id="badge-category">0</span></h3>
           <div class="chip-group" id="filter-categories"></div>
         </div>
 
         <div class="filter-section">
-          <h3>種類</h3>
+          <h3>種類 <span class="selected-count-badge" id="badge-type">0</span></h3>
           <div class="chip-group" id="filter-types"></div>
         </div>
 
         <div class="filter-section">
-          <h3>対象ツール</h3>
+          <h3>対象ツール <span class="selected-count-badge" id="badge-tool">0</span></h3>
           <div class="chip-group" id="filter-tools"></div>
         </div>
 
         <div class="filter-section">
-          <h3>仕組み</h3>
+          <h3>仕組み <span class="selected-count-badge" id="badge-mechanism">0</span></h3>
           <p class="filter-subgroup-label">Claude Code 構成要素</p>
           <div class="chip-group" id="filter-mechanisms"></div>
         </div>
 
         <div class="filter-section">
-          <h3>テーマ</h3>
+          <h3>テーマ <span class="selected-count-badge" id="badge-theme">0</span></h3>
           <div class="chip-group" id="filter-themes"></div>
-        </div>
-
-        <div class="filter-section">
-          <button id="clear-filters" onclick="clearAll()">すべてクリア</button>
         </div>
       </div>
     </aside>
 
     <main class="main">
       <div id="resources"></div>
+      <button id="load-more" class="load-more-btn" onclick="loadMore()" hidden></button>
     </main>
   </div>
 
@@ -522,7 +641,9 @@ const RESOURCES = [
     "mechanisms": [
       "Skills"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeの失敗をチームルールに昇格させる仕組み",
@@ -539,7 +660,9 @@ const RESOURCES = [
     ],
     "themes": [
       "チーム・CI"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "DB・ドメインは分離、Claude設定は共通化 ── git worktreeで並列開発環境をセットアップする",
@@ -557,7 +680,9 @@ const RESOURCES = [
     ],
     "themes": [
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "ルール準拠を自動チェックする（後編）— Claude Codeに『オレたち流』を守らせる",
@@ -575,7 +700,9 @@ const RESOURCES = [
     ],
     "themes": [
       "コード品質"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeで始めるコード品質の見える化",
@@ -592,7 +719,9 @@ const RESOURCES = [
     ],
     "themes": [
       "コード品質"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Code Skills のアンチパターン — 「なぜ Skills か」から考え直す設計の落とし穴",
@@ -607,7 +736,9 @@ const RESOURCES = [
     "mechanisms": [
       "Skills"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "AI時代のE2Eテスト、PlaywrightとVibiumをどう使い分けるか",
@@ -622,7 +753,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "テスト"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "スペック文書を「読みたくなるHTML」に変換するClaude Codeスキルを作った話（スキル本文付き）",
@@ -639,7 +772,9 @@ const RESOURCES = [
     ],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Agents！機能が多い！でもここだけ抑えたら便利に使える！",
@@ -654,7 +789,9 @@ const RESOURCES = [
     "mechanisms": [
       "Agents"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeのスキルが毎日勝手に改善されていく仕組みを作った",
@@ -671,7 +808,9 @@ const RESOURCES = [
     ],
     "themes": [
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "実践フルAIコーディング",
@@ -686,7 +825,9 @@ const RESOURCES = [
     "mechanisms": [
       "Workflow"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "AI開発の現実解はレベル7やで ― Agentic Engineering 8レベルでチームの立ち位置を測る",
@@ -699,7 +840,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "チーム・CI"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "E2Eテストのカバレッジはどう定義する？「全量」をチームの合意で決めるための考え方",
@@ -712,7 +855,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "テスト"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude CodeでPRレビューを自動化する設計と実装 ── 「AIレビューだけでマージ」を実現するまで",
@@ -731,7 +876,9 @@ const RESOURCES = [
     "themes": [
       "PRレビュー",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "全PRの83%をAIレビューだけでマージできるようにした",
@@ -748,7 +895,9 @@ const RESOURCES = [
     "themes": [
       "PRレビュー",
       "チーム・CI"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "深夜のE2Eテスト失敗をClaude Codeが自動修正してPRを作る仕組みの構築",
@@ -765,7 +914,9 @@ const RESOURCES = [
     "themes": [
       "テスト",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "PlaywrightのCIが80分→35分に：実行時間ベースのバランスドシャーディングを自作した話",
@@ -781,7 +932,9 @@ const RESOURCES = [
     "themes": [
       "テスト",
       "チーム・CI"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Code Skills 共有管理 — 4つのAIツールを1リポジトリで統一する方法",
@@ -798,7 +951,9 @@ const RESOURCES = [
     ],
     "themes": [
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude CodeからPull Requestのレビュー操作を便利に行うClaude Skillsを作った",
@@ -816,7 +971,9 @@ const RESOURCES = [
     ],
     "themes": [
       "PRレビュー"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeの使用率がステータスラインに表示できるようになったので表示用のスクリプトを作った話",
@@ -831,7 +988,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "design.md",
@@ -844,7 +1003,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "デザイン"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "textlint-rule-preset-ja-technical-writing",
@@ -859,7 +1020,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "textlint-rule-preset-ai-writing",
@@ -874,7 +1037,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "supabase/agent-skills",
@@ -890,7 +1055,9 @@ const RESOURCES = [
       "Skills",
       "Agents"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "awesome-design-md-jp",
@@ -903,7 +1070,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "デザイン"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "mizchi/skills",
@@ -918,7 +1087,9 @@ const RESOURCES = [
     "mechanisms": [
       "Skills"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Material Symbols and Icons - Google Fonts",
@@ -931,7 +1102,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "デザイン"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "日本語技術文書の文章規範",
@@ -944,7 +1117,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "入門から実践 -「ループエンジニアリング」",
@@ -959,7 +1134,9 @@ const RESOURCES = [
     "mechanisms": [
       "Workflow"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "もうプロンプトを書くな──「Loop Engineering」という新しいパラダイムの正体",
@@ -974,7 +1151,9 @@ const RESOURCES = [
     "mechanisms": [
       "Workflow"
     ],
-    "themes": []
+    "themes": [],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "SystemDesign InterviewCat",
@@ -987,7 +1166,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "システム設計"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "システムを作る人がまず理解すべきシステム思考の基礎",
@@ -1000,7 +1181,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "システム思考"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "伊藤淳一が考える「コードレビューの目的と進め方」",
@@ -1013,7 +1196,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "PRレビュー"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Yadorigi（ヤドリギ）ローカル完結型AIブックマーク整理ツール",
@@ -1027,7 +1212,9 @@ const RESOURCES = [
     "themes": [
       "ナレッジ管理",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "生成AI時代のドキュメント基盤",
@@ -1040,7 +1227,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "PlaywrightのテストをDocker ImageとProjects機能で安定化と高速化",
@@ -1057,7 +1246,9 @@ const RESOURCES = [
       "テスト",
       "チーム・CI",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "【50万バズ】Nano Banana実用【プロンプト不要？】手書きの指示だけでマニュアル完成！",
@@ -1071,7 +1262,9 @@ const RESOURCES = [
     "themes": [
       "ドキュメント改善",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "E2Eテストを民主化したら、朝には失敗の分析も再実行も修正PRも終わっていた",
@@ -1089,7 +1282,9 @@ const RESOURCES = [
       "テスト",
       "チーム・CI",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "AIが\"思った通りに動かない\"理由とコンテキストエンジニアリング",
@@ -1102,7 +1297,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "コンテキストエンジニアリング"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "2026年6月現在のClaude Code開発フロー",
@@ -1121,7 +1318,9 @@ const RESOURCES = [
     "themes": [
       "開発環境",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeのために「臭うコード検出器」を開発し、Hooksに設定してみた話",
@@ -1139,7 +1338,9 @@ const RESOURCES = [
     "themes": [
       "コード品質",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeに「7人の意地悪なQA」を仕込んでテストケースの観点漏れを潰した",
@@ -1156,7 +1357,9 @@ const RESOURCES = [
     ],
     "themes": [
       "テスト"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "DESIGN.md + 壊れたら気づくハーネス - AI向けデザインシステムを「維持できる仕組み」にした記録",
@@ -1172,7 +1375,9 @@ const RESOURCES = [
     "themes": [
       "デザイン",
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "35個のバグは、1回のレビューでは出なかった。11回見直して、最後に出力側からいちばん怖いのが出た話",
@@ -1186,7 +1391,9 @@ const RESOURCES = [
     "themes": [
       "コード品質",
       "PRレビュー"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "5 Agent Skills I Use Every Day",
@@ -1204,7 +1411,9 @@ const RESOURCES = [
     "themes": [
       "テスト",
       "コード品質"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "AIが大量にアウトプットしてくるので認知負荷を下げるSkillを作った",
@@ -1221,7 +1430,9 @@ const RESOURCES = [
     ],
     "themes": [
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Codeでアカウントを切り替えたい",
@@ -1236,7 +1447,9 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "AI時代のナレッジ管理手法 - Googleの「OKF」を解説",
@@ -1250,7 +1463,9 @@ const RESOURCES = [
     "themes": [
       "ドキュメント改善",
       "ナレッジ管理"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "DESIGN.mdの作り方｜試行錯誤の記録",
@@ -1268,7 +1483,9 @@ const RESOURCES = [
     "themes": [
       "デザイン",
       "ドキュメント改善"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Code から Discord を触りたい！Bot作成からmcp-discordでMCP連携するまで",
@@ -1286,7 +1503,9 @@ const RESOURCES = [
     "themes": [
       "自動化",
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "WBSという至高ツールで、このAI時代をサバイブする",
@@ -1302,7 +1521,9 @@ const RESOURCES = [
     "themes": [
       "プロジェクト管理",
       "自動化"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Code Auto Mode入門 — 安全な自律コーディングを実現する権限制御の全貌",
@@ -1318,7 +1539,9 @@ const RESOURCES = [
     "themes": [
       "自動化",
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "Claude Code × Codex 共存セットアップ — ルール・Skills・hooksを一元管理する",
@@ -1337,7 +1560,9 @@ const RESOURCES = [
     ],
     "themes": [
       "開発環境"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   },
   {
     "title": "デロイトが国に納品したスライド351枚、全部数えたらパターンは7つだけだった",
@@ -1350,17 +1575,12 @@ const RESOURCES = [
     "mechanisms": [],
     "themes": [
       "デザイン"
-    ]
+    ],
+    "date": "2026-07-17",
+    "isMigrated": true
   }
 ];
 /*CATALOG-DATA-END*/
-
-(function() {
-  const saved = localStorage.getItem('theme');
-  if (saved === 'dark' || saved === 'light') {
-    document.documentElement.dataset.theme = saved;
-  }
-})();
 
 function currentTheme() {
   const t = document.documentElement.dataset.theme;
@@ -1380,17 +1600,76 @@ function toggleTheme() {
   updateThemeIcon();
 }
 
-const state = { category: null, type: null, tool: null, mechanism: null, theme: null, keyword: '' };
+// 絞り込み軸の定義。state のキー・URL クエリキー・チップ生成先を1箇所にまとめる。
+const AXES = [
+  { key: 'category', containerId: 'filter-categories', badgeId: 'badge-category', vocabKey: 'categories', matchField: 'category', multi: false, big: true },
+  { key: 'type', containerId: 'filter-types', badgeId: 'badge-type', vocabKey: 'types', matchField: 'type', multi: false },
+  { key: 'tool', containerId: 'filter-tools', badgeId: 'badge-tool', vocabKey: 'tools', matchField: 'tools', multi: true },
+  { key: 'mechanism', containerId: 'filter-mechanisms', badgeId: 'badge-mechanism', vocabKey: 'mechanisms', matchField: 'mechanisms', multi: true },
+  { key: 'theme', containerId: 'filter-themes', badgeId: 'badge-theme', vocabKey: 'themes', matchField: 'themes', multi: true },
+];
+
+const PAGE_SIZE = 30;
+const FRESHNESS_THRESHOLD_MS = 90 * 24 * 60 * 60 * 1000; // 90日
+
+const state = { category: null, type: null, tool: null, mechanism: null, theme: null, keyword: '', visibleCount: PAGE_SIZE };
+
+let searchDebounceTimer = null;
+
+// 全角・半角の表記ゆれを吸収してから比較する。
+function normalize(s) {
+  return (s || '').normalize('NFKC').toLowerCase();
+}
+
+function resourceMatchesAxis(r, axis, value) {
+  if (value == null) return true;
+  return axis.multi ? r[axis.matchField].includes(value) : r[axis.matchField] === value;
+}
+
+function resourceMatchesKeyword(r, keyword) {
+  if (!keyword) return true;
+  const kw = normalize(keyword);
+  return normalize(r.title).includes(kw) || normalize(r.description || '').includes(kw);
+}
+
+/**
+ * 0件disabledチップの母数計算。
+ * 「自軸の選択を除外し、他軸（軸間AND・現行フィルタと同じ規則）+ 検索語を適用した
+ * 交差ヒット件数」を返す。overrideAxis の選択だけを overrideValue に仮置きし、
+ * 他の軸は現在の state をそのまま使う。
+ */
+function intersectingCount(overrideAxis, overrideValue) {
+  return RESOURCES.filter(r => {
+    for (const axis of AXES) {
+      const value = axis === overrideAxis ? overrideValue : state[axis.key];
+      if (!resourceMatchesAxis(r, axis, value)) return false;
+    }
+    return resourceMatchesKeyword(r, state.keyword);
+  }).length;
+}
 
 function init() {
+  loadStateFromUrl();
   renderFilters();
+  document.getElementById('search').value = state.keyword;
   applyFilters();
   document.getElementById('search').addEventListener('input', e => {
-    state.keyword = e.target.value;
-    applyFilters();
+    const value = e.target.value;
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      state.keyword = value;
+      state.visibleCount = PAGE_SIZE;
+      applyFilters();
+      syncUrl(true);
+    }, 150);
   });
   document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
   document.getElementById('filter-toggle').addEventListener('click', toggleFilterPanel);
+  window.addEventListener('popstate', () => {
+    loadStateFromUrl();
+    document.getElementById('search').value = state.keyword;
+    applyFilters();
+  });
   updateThemeIcon();
 }
 
@@ -1403,13 +1682,7 @@ function toggleFilterPanel() {
 }
 
 function activeFilterCount() {
-  let n = 0;
-  if (state.category) n++;
-  if (state.type) n++;
-  if (state.tool) n++;
-  if (state.mechanism) n++;
-  if (state.theme) n++;
-  return n;
+  return AXES.reduce((n, axis) => n + (state[axis.key] ? 1 : 0), 0);
 }
 
 function updateFilterBadge() {
@@ -1417,95 +1690,90 @@ function updateFilterBadge() {
   const n = activeFilterCount();
   badge.textContent = n;
   badge.hidden = n === 0;
+  AXES.forEach(axis => {
+    document.getElementById(axis.badgeId).textContent = state[axis.key] ? 1 : 0;
+  });
 }
 
 function renderFilters() {
-  // カテゴリチップ
-  const catContainer = document.getElementById('filter-categories');
-  VOCAB.categories.forEach(c => {
-    const btn = createChip(c, true);
-    btn.onclick = () => { state.category = state.category === c ? null : c; applyFilters(); updateChips(); };
-    catContainer.appendChild(btn);
-  });
-
-  // 種類チップ
-  const typeContainer = document.getElementById('filter-types');
-  VOCAB.types.forEach(t => {
-    const btn = createChip(t);
-    btn.onclick = () => { state.type = state.type === t ? null : t; applyFilters(); updateChips(); };
-    typeContainer.appendChild(btn);
-  });
-
-  // 対象ツールチップ
-  const toolContainer = document.getElementById('filter-tools');
-  VOCAB.tools.forEach(t => {
-    const btn = createChip(t);
-    btn.onclick = () => { state.tool = state.tool === t ? null : t; applyFilters(); updateChips(); };
-    toolContainer.appendChild(btn);
-  });
-
-  // 仕組みチップ
-  const mechanismContainer = document.getElementById('filter-mechanisms');
-  VOCAB.mechanisms.forEach(m => {
-    const btn = createChip(m);
-    btn.onclick = () => { state.mechanism = state.mechanism === m ? null : m; applyFilters(); updateChips(); };
-    mechanismContainer.appendChild(btn);
-  });
-
-  // テーマチップ
-  const themeContainer = document.getElementById('filter-themes');
-  VOCAB.themes.forEach(t => {
-    const btn = createChip(t);
-    btn.onclick = () => { state.theme = state.theme === t ? null : t; applyFilters(); updateChips(); };
-    themeContainer.appendChild(btn);
+  AXES.forEach(axis => {
+    const container = document.getElementById(axis.containerId);
+    VOCAB[axis.vocabKey].forEach(value => {
+      const btn = createChip(value, axis.big);
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        state[axis.key] = state[axis.key] === value ? null : value;
+        state.visibleCount = PAGE_SIZE;
+        applyFilters();
+        syncUrl(false);
+      });
+      container.appendChild(btn);
+    });
   });
 }
 
 function createChip(text, big) {
   const btn = document.createElement('button');
+  btn.type = 'button';
   btn.className = 'chip' + (big ? ' chip-big' : '');
   btn.textContent = text;
   btn.dataset.value = text;
+  btn.setAttribute('aria-pressed', 'false');
   return btn;
 }
 
 function updateChips() {
-  document.querySelectorAll('#filter-categories .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.category);
-  });
-  document.querySelectorAll('#filter-types .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.type);
-  });
-  document.querySelectorAll('#filter-tools .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.tool);
-  });
-  document.querySelectorAll('#filter-mechanisms .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.mechanism);
-  });
-  document.querySelectorAll('#filter-themes .chip').forEach(el => {
-    el.classList.toggle('active', el.dataset.value === state.theme);
+  AXES.forEach(axis => {
+    document.querySelectorAll(`#${axis.containerId} .chip`).forEach(el => {
+      const value = el.dataset.value;
+      const active = value === state[axis.key];
+      el.classList.toggle('active', active);
+      el.setAttribute('aria-pressed', String(active));
+      const disabled = !active && intersectingCount(axis, value) === 0;
+      el.classList.toggle('disabled', disabled);
+      el.disabled = disabled;
+      el.setAttribute('aria-disabled', String(disabled));
+    });
   });
   const clearBtn = document.getElementById('clear-filters');
   clearBtn.style.display = (state.category || state.type || state.tool || state.mechanism || state.theme || state.keyword) ? '' : 'none';
 }
 
 function applyFilters() {
-  const filtered = RESOURCES.filter(r => {
-    if (state.category && r.category !== state.category) return false;
-    if (state.type && r.type !== state.type) return false;
-    if (state.tool && !r.tools.includes(state.tool)) return false;
-    if (state.mechanism && !r.mechanisms.includes(state.mechanism)) return false;
-    if (state.theme && !r.themes.includes(state.theme)) return false;
-    if (state.keyword) {
-      const kw = state.keyword.toLowerCase();
-      if (!r.title.toLowerCase().includes(kw) && !(r.description || '').toLowerCase().includes(kw)) return false;
-    }
-    return true;
-  });
-  renderResources(filtered);
-  document.getElementById('count').textContent = filtered.length + ' 件';
+  const filtered = RESOURCES.filter(r =>
+    AXES.every(axis => resourceMatchesAxis(r, axis, state[axis.key])) &&
+    resourceMatchesKeyword(r, state.keyword)
+  );
+  const visible = filtered.slice(0, state.visibleCount);
+  renderResources(visible);
+  document.getElementById('count').textContent = `${filtered.length}件中${visible.length}件を表示`;
+  updateLoadMore(filtered.length);
   updateChips();
   updateFilterBadge();
+}
+
+function updateLoadMore(totalFiltered) {
+  const btn = document.getElementById('load-more');
+  const remaining = totalFiltered - state.visibleCount;
+  if (remaining <= 0) {
+    btn.hidden = true;
+    return;
+  }
+  btn.hidden = false;
+  btn.textContent = `もっと見る（残り${remaining}件）`;
+}
+
+function loadMore() {
+  state.visibleCount += PAGE_SIZE;
+  applyFilters();
+}
+
+// 登録日から90日超の判定。登録日 00:00（ローカル時刻）からの経過時間で判定する。
+// 蓄積簿移行時に一括設定した日付（isMigrated）は実登録日が不明なため対象外。
+function isStale(r) {
+  if (r.isMigrated || !r.date) return false;
+  const registered = new Date(`${r.date}T00:00:00`);
+  return (Date.now() - registered.getTime()) > FRESHNESS_THRESHOLD_MS;
 }
 
 function renderResources(list) {
@@ -1519,9 +1787,10 @@ function renderResources(list) {
       <div class="tags">
         <span class="tag-outlined">${esc(r.category)}</span>
         <span class="tag-filled">${esc(r.type)}</span>
-        ${(r.tools || []).map(t => `<span class="tag-subtle">${esc(t)}</span>`).join('')}
-        ${(r.mechanisms || []).map(m => `<span class="tag-subtle">${esc(m)}</span>`).join('')}
-        ${(r.themes || []).map(t => `<span class="tag-subtle">${esc(t)}</span>`).join('')}
+        ${(r.tools || []).map(t => `<button type="button" class="tag-subtle tag-clickable" data-axis="tool" data-value="${esc(t)}">${esc(t)}</button>`).join('')}
+        ${(r.mechanisms || []).map(m => `<button type="button" class="tag-subtle tag-clickable" data-axis="mechanism" data-value="${esc(m)}">${esc(m)}</button>`).join('')}
+        ${(r.themes || []).map(t => `<button type="button" class="tag-subtle tag-clickable" data-axis="theme" data-value="${esc(t)}">${esc(t)}</button>`).join('')}
+        ${isStale(r) ? `<span class="freshness-badge"><span class="material-symbols-outlined" style="font-size:0.75rem">schedule</span>登録から90日超</span>` : ''}
       </div>
       <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="resource-title">
         ${esc(r.title)} <span class="material-symbols-outlined" style="font-size:0.875rem;vertical-align:middle">open_in_new</span>
@@ -1531,14 +1800,50 @@ function renderResources(list) {
       <span class="resource-url">${esc(r.url)}</span>
     </article>
   `).join('');
+  container.querySelectorAll('.tag-clickable').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const axis = AXES.find(a => a.key === btn.dataset.axis);
+      const value = btn.dataset.value;
+      state[axis.key] = state[axis.key] === value ? null : value;
+      state.visibleCount = PAGE_SIZE;
+      applyFilters();
+      syncUrl(false);
+    });
+  });
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 function clearAll() {
-  state.category = null; state.type = null; state.tool = null; state.mechanism = null; state.theme = null; state.keyword = '';
-  document.getElementById('search').value = '';
+  state.category = null; state.type = null; state.tool = null; state.mechanism = null; state.theme = null;
+  state.visibleCount = PAGE_SIZE;
   applyFilters();
+  syncUrl(false);
+}
+
+// 検索語（replaceState）と各軸の選択（pushState）を URL クエリへ同期する。
+function syncUrl(replace) {
+  const params = new URLSearchParams();
+  if (state.keyword) params.set('q', state.keyword);
+  AXES.forEach(axis => {
+    if (state[axis.key]) params.set(axis.key, state[axis.key]);
+  });
+  const query = params.toString();
+  const url = query ? `${location.pathname}?${query}` : location.pathname;
+  if (replace) {
+    history.replaceState(null, '', url);
+  } else {
+    history.pushState(null, '', url);
+  }
+}
+
+function loadStateFromUrl() {
+  const params = new URLSearchParams(location.search);
+  state.keyword = params.get('q') || '';
+  AXES.forEach(axis => {
+    state[axis.key] = params.get(axis.key) || null;
+  });
+  state.visibleCount = PAGE_SIZE;
 }
 
 document.addEventListener('DOMContentLoaded', init);
